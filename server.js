@@ -1182,8 +1182,8 @@ io.on('connection', (socket) => {
 
 // ── START ─────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`\n🎮 Quiz Game avviato!`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n🎮 Quiz Game avviato sulla porta ${PORT}!`);
   console.log(`📺 Schermata TV:     http://localhost:${PORT}/tv`);
   console.log(`📱 Telefono:         http://localhost:${PORT}/phone\n`);
 });
