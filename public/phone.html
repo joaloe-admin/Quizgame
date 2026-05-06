@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Quiz Game</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; min-height: 100vh; font-family: 'Segoe UI', system-ui, sans-serif; }
+#app { min-height: 100vh; background: linear-gradient(160deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%); display: flex; flex-direction: column; }
+
+.screen { display: none; flex-direction: column; min-height: 100vh; }
+.screen.active { display: flex; }
+
+/* ── TOP BAR ── */
+.topbar { padding: 14px 20px 10px; display: flex; justify-content: space-between; align-items: center; }
+.topbar-logo { font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.9); }
+.topbar-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 99px; }
+
+/* ── JOIN SCREEN ── */
+#sc-join { align-items: center; justify-content: center; padding: 2rem 1.5rem; }
+.join-card { background: rgba(255,255,255,0.15); border-radius: 24px; padding: 2rem 1.5rem; width: 100%; max-width: 360px; backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.25); }
+.join-card h2 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.join-card p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 1.5rem; line-height: 1.5; }
+.code-input { width: 100%; height: 70px; background: rgba(255,255,255,0.9); border: none; border-radius: 16px; font-size: 34px; font-weight: 800; text-align: center; color: #4c1d95; letter-spacing: 10px; outline: none; margin-bottom: 14px; }
+.code-input::placeholder { color: #c4b5fd; letter-spacing: 4px; font-size: 24px; }
+.btn-join { width: 100%; padding: 16px; background: #fff; color: #7c3aed; border: none; border-radius: 99px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all .15s; }
+.btn-join:active { transform: scale(0.97); }
+.btn-join:disabled { opacity: .4; cursor: default; }
+.error-pill { background: rgba(239,68,68,0.25); border: 1px solid rgba(239,68,68,0.4); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #fca5a5; margin-bottom: 14px; display: none; text-align: center; }
+.error-pill.show { display: block; }
+
+/* ── CHAR SELECT SCREEN ── */
+#sc-char { padding: 1rem 1.25rem; }
+#sc-char h2 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+#sc-char p { font-size: 13px; color: rgba(255,255,255,0.75); margin-bottom: 1rem; }
+.name-field { margin-bottom: 1rem; }
+.name-field input { width: 100%; padding: 13px 16px; border: none; border-radius: 14px; font-size: 15px; font-weight: 600; background: rgba(255,255,255,0.9); color: #4c1d95; outline: none; }
+.name-field input::placeholder { color: #c4b5fd; font-weight: 400; }
+.chars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+.char-card { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.2); border-radius: 18px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all .15s; }
+.char-card:active { transform: scale(0.95); }
+.char-card.selected { background: rgba(255,255,255,0.35); border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.3); }
+.char-card.unavailable { opacity: .35; cursor: default; }
+.char-card svg { display: block; margin: 0 auto 6px; }
+.char-card .cname { font-size: 12px; font-weight: 700; color: #fff; }
+.char-card .crole { font-size: 10px; color: rgba(255,255,255,0.7); margin-top: 1px; }
+.btn-confirm { width: 100%; padding: 15px; background: #fff; color: #7c3aed; border: none; border-radius: 99px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all .15s; }
+.btn-confirm:active { transform: scale(0.97); }
+.btn-confirm:disabled { opacity: .35; cursor: default; }
+
+/* ── WAIT SCREEN ── */
+#sc-wait { align-items: center; justify-content: center; padding: 2rem; }
+.wait-avatar-big { width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 3px solid rgba(255,255,255,0.4); overflow: hidden; display: flex; align-items: flex-end; justify-content: center; margin: 0 auto 1.25rem; }
+.wait-avatar-big svg { width: 100px; height: 100px; }
+.wait-name { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px; text-align: center; }
+.wait-role { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 1.5rem; text-align: center; }
+.wait-msg { font-size: 15px; color: rgba(255,255,255,0.8); text-align: center; line-height: 1.6; }
+.dots { display: flex; gap: 8px; justify-content: center; margin-top: 1.5rem; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.6); animation: bounce .8s infinite alternate; }
+.dot:nth-child(2) { animation-delay: .2s; }
+.dot:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+
+/* ── WAIT SUBJECT SCREEN ── */
+#sc-wait-subject { align-items: center; justify-content: center; padding: 2rem; }
+.wait-subject-icon { font-size: 64px; margin-bottom: 1rem; text-align: center; }
+.wait-subject-msg { font-size: 20px; font-weight: 700; color: #fff; text-align: center; margin-bottom: 8px; }
+.wait-subject-sub { font-size: 14px; color: rgba(255,255,255,0.75); text-align: center; }
+
+/* ── GAME SCREEN ── */
+#sc-game { padding: 0; }
+.game-header { padding: 14px 18px 10px; }
+.game-subject-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.game-subject-badge { background: rgba(255,255,255,0.2); color: #fff; font-size: 13px; font-weight: 700; padding: 5px 14px; border-radius: 99px; }
+.game-score-badge { background: rgba(255,255,255,0.2); color: #fff; font-size: 13px; font-weight: 700; padding: 5px 14px; border-radius: 99px; }
+.progress-dots-sm { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.pdot-sm { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: all .3s; }
+.pdot-sm.done { background: rgba(255,255,255,0.6); }
+.pdot-sm.current { background: #fff; width: 12px; height: 12px; }
+
+.game-q-box { background: rgba(255,255,255,0.15); margin: 0 14px 14px; border-radius: 18px; padding: 16px; backdrop-filter: blur(8px); }
+.game-q-text { font-size: 16px; font-weight: 700; color: #fff; line-height: 1.4; text-align: center; }
+
+.audio-mode-banner { background: rgba(255,255,255,0.15); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; display: none; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.25); }
+.audio-mode-banner.active { display: flex; }
+.audio-icon { font-size: 28px; animation: pulse 1s infinite alternate; }
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.15); } }
+.audio-mode-text { flex: 1; }
+.audio-mode-label { font-size: 11px; color: rgba(255,255,255,0.7); }
+.audio-mode-q { font-size: 14px; font-weight: 700; color: #fff; }
+/* ── SWIPE INTERFACE ── */
+.swipe-area { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 8px; padding: 8px; user-select: none; touch-action: none; }
+.swipe-center { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; pointer-events: none; }
+.swipe-emoji { font-size: 44px; }
+.swipe-hint { font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 600; text-align: center; }
+.swipe-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border-radius: 20px; cursor: pointer; transition: all .15s; border: none; }
+.swipe-arrow:active { transform: scale(0.93); filter: brightness(1.15); }
+.arrow-icon { font-size: 36px; line-height: 1; }
+.arrow-label { font-size: 11px; font-weight: 800; color: #fff; text-align: center; line-height: 1.2; max-width: 90px; }
+/* Grid positions */
+.swipe-arrow.up    { grid-column: 2; grid-row: 1; background: #f59e0b; }
+.swipe-arrow.down  { grid-column: 2; grid-row: 3; background: #3b82f6; }
+.swipe-arrow.left  { grid-column: 1; grid-row: 2; background: #ef4444; }
+.swipe-arrow.right { grid-column: 3; grid-row: 2; background: #10b981; }
+/* States */
+.swipe-arrow.answered-ok  { filter: brightness(1.2); box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+.swipe-arrow.answered-ko  { opacity: 0.3; }
+.swipe-arrow.correct-ans  { box-shadow: 0 0 24px rgba(255,255,255,0.6); filter: brightness(1.25); }
+
+.result-banner { margin: 12px 14px 0; padding: 12px 16px; border-radius: 14px; font-size: 15px; font-weight: 700; text-align: center; display: none; }
+.result-banner.ok { background: rgba(16,185,129,0.3); color: #fff; border: 1px solid rgba(16,185,129,0.5); }
+.result-banner.ko { background: rgba(239,68,68,0.3); color: #fff; border: 1px solid rgba(239,68,68,0.4); }
+
+/* ── PARTIAL PODIUM SCREEN ── */
+#sc-partial { align-items: center; justify-content: center; padding: 2rem 1.5rem; }
+.partial-card { background: rgba(255,255,255,0.15); border-radius: 24px; padding: 1.5rem; width: 100%; max-width: 360px; text-align: center; backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.25); }
+.partial-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.partial-sub { font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 1.25rem; }
+.my-score-big { font-size: 52px; font-weight: 900; color: #fff; }
+.my-rank { font-size: 16px; color: rgba(255,255,255,0.8); margin-top: 4px; }
+.partial-wait { font-size: 13px; color: rgba(255,255,255,0.65); margin-top: 1rem; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- JOIN -->
+  <div class="screen active" id="sc-join">
+    <div class="topbar"><div class="topbar-logo">🎯 Quiz Game</div></div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:1rem 1.5rem">
+      <div class="join-card">
+        <h2>Entra nel gioco!</h2>
+        <p>Inserisci il codice che vedi sul televisore.</p>
+        <div class="error-pill" id="error-pill"></div>
+        <input class="code-input" type="tel" maxlength="4" id="code-input" placeholder="0000" oninput="codeChanged()" autocomplete="off">
+        <button class="btn-join" id="btn-join" onclick="doJoin()" disabled>Entra →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAR SELECT -->
+  <div class="screen" id="sc-char">
+    <div class="topbar"><div class="topbar-logo">🎯 Quiz Game</div><div class="topbar-name" id="topbar-name"></div></div>
+    <div style="flex:1;padding:0 1.25rem 1.25rem;overflow-y:auto">
+      <h2 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:4px">Scegli il personaggio</h2>
+      <p style="font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:1rem">e scrivi il tuo nome</p>
+      <div class="name-field"><input type="text" id="ph-name" placeholder="Il tuo nome..." maxlength="14" oninput="checkReady()"></div>
+      <div class="chars-grid" id="chars-grid"></div>
+      <button class="btn-confirm" id="btn-confirm" onclick="doConfirm()" disabled>Pronto! 🎉</button>
+    </div>
+  </div>
+
+  <!-- WAIT -->
+  <div class="screen" id="sc-wait">
+    <div class="topbar"><div class="topbar-logo">🎯 Quiz Game</div><div class="topbar-name" id="topbar-name2"></div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem">
+      <div class="wait-avatar-big" id="wait-avatar-big" style="background:transparent;border:none;overflow:visible;"></div>
+      <div class="wait-name" id="wait-name"></div>
+      <div class="wait-role" id="wait-role"></div>
+      <div class="wait-msg">Sei dentro! Aspetta che<br>l'host avvii la partita.</div>
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+  </div>
+
+  <!-- WAIT SUBJECT -->
+  <div class="screen" id="sc-wait-subject">
+    <div class="topbar"><div class="topbar-logo">🎯 Quiz Game</div><div class="topbar-name" id="topbar-name3"></div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem">
+      <div class="wait-subject-icon">🎯</div>
+      <div class="wait-subject-msg">Round completato!</div>
+      <div class="wait-subject-sub">Il master sta scegliendo<br>la prossima materia...</div>
+      <div class="dots" style="margin-top:1.5rem"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="sc-game">
+    <div class="topbar"><div class="topbar-logo">🎯 Quiz Game</div><div class="topbar-name" id="topbar-name4"></div></div>
+    <div class="game-header">
+      <div class="game-subject-row">
+        <div class="game-subject-badge" id="game-subject-badge"></div>
+        <div class="game-score-badge">⭐ <span id="game-score">0</span></div>
+      </div>
+      <div class="progress-dots-sm" id="progress-dots-sm"></div>
+    </div>
+    <div class="audio-mode-banner" id="audio-banner">
+      <div class="audio-icon">🎵</div>
+      <div class="audio-mode-text">
+        <div class="audio-mode-label">Ascolta la musica sulla TV e rispondi:</div>
+        <div class="audio-mode-q" id="audio-q-label"></div>
+      </div>
+    </div>
+    <div class="swipe-area" id="swipe-area">
+      <div class="swipe-arrow up"    id="sw-0" onclick="doAnswer(0,qIndex)"><div class="arrow-icon">↑</div><div class="arrow-label" id="sw-label-0">A</div></div>
+      <div class="swipe-arrow down"  id="sw-1" onclick="doAnswer(1,qIndex)"><div class="arrow-icon">↓</div><div class="arrow-label" id="sw-label-1">B</div></div>
+      <div class="swipe-arrow left"  id="sw-2" onclick="doAnswer(2,qIndex)"><div class="arrow-icon">←</div><div class="arrow-label" id="sw-label-2">C</div></div>
+      <div class="swipe-arrow right" id="sw-3" onclick="doAnswer(3,qIndex)"><div class="arrow-icon">→</div><div class="arrow-label" id="sw-label-3">D</div></div>
+      <div class="swipe-center">
+        <div class="swipe-emoji" id="swipe-emoji">🎯</div>
+        <div class="swipe-hint" id="swipe-hint">Scorri per rispondere!</div>
+      </div>
+    </div>
+    <div class="result-banner" id="result-banner"></div>
+  </div>
+
+  <!-- PARTIAL PODIUM (after each round) -->
+  <div class="screen" id="sc-partial">
+    <div class="topbar"><div class="topbar-logo">🎯 Quiz Game</div></div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:1rem 1.5rem">
+      <div class="partial-card">
+        <div class="partial-title">Fine round! 🎉</div>
+        <div class="partial-sub" id="partial-subject-name"></div>
+        <div class="my-score-big" id="partial-score">0</div>
+        <div class="my-rank" id="partial-rank"></div>
+        <div class="partial-wait">Il master sceglierà la prossima materia...</div>
+        <div class="dots" style="margin-top:1rem"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io({
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 3000,
+  timeout: 10000,
+});
+
+// Auto-rejoin after reconnection
+socket.on('reconnect', () => {
+  console.log('Riconnesso! Tento di rientrare...');
+  if (playerName && selectedChar && enteredCode) {
+    socket.emit('join', { code: enteredCode, name: playerName, charId: selectedChar });
+  }
+});
+
+// Show connection status
+socket.on('connect', () => {
+  document.querySelectorAll('.conn-indicator').forEach(el => {
+    el.style.background = '#10b981';
+    el.title = 'Connesso';
+  });
+});
+
+socket.on('disconnect', () => {
+  document.querySelectorAll('.conn-indicator').forEach(el => {
+    el.style.background = '#ef4444';
+    el.title = 'Disconnesso - riconnessione...';
+  });
+});
+
+socket.on('disconnect', (reason) => {
+  console.log('Disconnesso:', reason);
+  if (reason === 'io server disconnect') {
+    socket.connect(); // reconnect if server disconnected us
+  }
+});
+
+const ALL_CHARS = [
+  {id:'sofia', name:'Sofia', role:'La Dolce',       color:'#a78bfa'},
+  {id:'nova',  name:'Nova',  role:'La Cyber',       color:'#22d3ee'},
+  {id:'quinn', name:'Quinn', role:'La Campionessa', color:'#f59e0b'},
+  {id:'flora', name:'Flora', role:'La Natura',      color:'#4ade80'},
+  {id:'rebel', name:'Rebel', role:'La Punk',        color:'#ef4444'},
+  {id:'sage',  name:'Sage',  role:'La Studiosa',    color:'#92400e'},
+  {id:'pixel', name:'Pixel', role:'La Gamer',       color:'#10b981'},
+  {id:'jay',   name:'Jay',   role:'Lo Sportivo',    color:'#3b82f6'},
+  {id:'leo',   name:'Leo',   role:"L'Avventuriero", color:'#f97316'},
+  {id:'rico',  name:'Rico',  role:'Il Cool',        color:'#6366f1'},
+  {id:'finn',  name:'Finn',  role:'Il Casual',      color:'#84cc16'},
+  {id:'beat',  name:'Beat',  role:'Il DJ',          color:'#eab308'},
+  {id:'mimo',  name:'Mimo',  role:'Il Simpatico',   color:'#06b6d4'},
+  {id:'nerd',  name:'Nerd',  role:'Il Genio',       color:'#60a5fa'},
+];
+
+function charSVGInner(id) { return ''; }
+function charSVG(id, w, h) {
+  return '<img src="/chars/'+id+'.png" style="width:'+w+'px;height:'+h+'px;object-fit:contain;object-position:center bottom;" alt="'+id+'">';
+}
+
+
+let selectedChar = null;
+let playerName = '';
+let playerScore = 0;
+let answered = false;
+let qIndex = 0;
+let enteredCode = '';
+let takenChars = [];
+let currentSubjectLabel = '';
+
+// ── SWIPE GESTURE ──
+let touchStartX = 0, touchStartY = 0;
+document.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener('touchend', e => {
+  if (answered) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const adx = Math.abs(dx), ady = Math.abs(dy);
+  if (Math.max(adx, ady) < 40) return; // too short
+  const screen = document.querySelector('.screen.active');
+  if (!screen || screen.id !== 'sc-game') return;
+  let dir;
+  if (adx > ady) dir = dx > 0 ? 3 : 2; // right=3, left=2
+  else           dir = dy > 0 ? 1 : 0; // down=1, up=0
+  doAnswer(dir, qIndex);
+}, { passive: true });
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function setTopbarNames(name) {
+  ['topbar-name','topbar-name2','topbar-name3','topbar-name4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = name;
+  });
+}
+
+function codeChanged() {
+  const el = document.getElementById('code-input');
+  el.value = el.value.replace(/\D/g,'');
+  document.getElementById('btn-join').disabled = el.value.length < 4;
+}
+
+function doJoin() {
+  enteredCode = document.getElementById('code-input').value;
+  showScreen('sc-char');
+  buildCharGrid();
+}
+
+function buildCharGrid() {
+  document.getElementById('chars-grid').innerHTML = ALL_CHARS.map(function(c) {
+    var unavail = takenChars.includes(c.id);
+    var onclick = unavail ? '' : 'selectChar(\''+c.id+'\')';
+    return '<div class="char-card '+(unavail?'unavailable':'')+'" id="cc-'+c.id+'" onclick="'+onclick+'">' +
+      '<img src="/chars/'+c.id+'.png" style="width:72px;height:72px;object-fit:contain;object-position:center bottom;">' +
+      '<div class="cname">'+c.name+'</div>' +
+      '<div class="crole">'+c.role+'</div></div>';
+  }).join('');
+}
+
+function selectChar(id) {
+  if (takenChars.includes(id)) return;
+  selectedChar = id;
+  document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('cc-'+id).classList.add('selected');
+  checkReady();
+}
+
+function checkReady() {
+  const name = document.getElementById('ph-name').value.trim();
+  document.getElementById('btn-confirm').disabled = !(selectedChar && name.length >= 1);
+}
+
+function doConfirm() {
+  playerName = document.getElementById('ph-name').value.trim();
+  setTopbarNames(playerName);
+  socket.emit('join', { code: enteredCode, name: playerName, charId: selectedChar });
+}
+
+socket.on('join-error', ({ msg }) => {
+  const pill = document.getElementById('error-pill');
+  pill.textContent = msg;
+  pill.classList.add('show');
+  showScreen('sc-join');
+  setTimeout(() => pill.classList.remove('show'), 3000);
+});
+
+socket.on('joined', ({ name, char }) => {
+  const c = CHAR_DATA[char.id];
+  document.getElementById('wait-avatar-big').innerHTML = `<img src="/chars/${char.id}.png" style="width:110px;height:110px;object-fit:contain;object-position:center bottom;" alt="${char.id}">`;
+  document.getElementById('wait-name').textContent = name;
+  document.getElementById('wait-role').textContent = c ? c.role : '';
+  showScreen('sc-wait');
+});
+
+socket.on('players-update', ({ players }) => {
+  takenChars = players.map(p => p.char.id);
+  buildCharGrid();
+});
+
+socket.on('choose-subject', () => {
+  showScreen('sc-wait-subject');
+});
+
+socket.on('subject-selected', ({ subject, emoji }) => {
+  currentSubjectLabel = emoji + ' ' + subject;
+  document.getElementById('game-subject-badge').textContent = currentSubjectLabel;
+  document.getElementById('partial-subject-name').textContent = emoji + ' ' + subject;
+});
+
+const swipeEmojis = ['🌍','🏛️','🗺️','⚽','🎬','🔬','🎵','🎯'];
+socket.on('question', ({ index, total, subject, emoji, q, yt, opts }) => {
+  answered = false;
+  qIndex = index;
+  currentSubjectLabel = emoji + ' ' + subject;
+  document.getElementById('game-subject-badge').textContent = currentSubjectLabel;
+  document.getElementById('result-banner').style.display = 'none';
+
+  // Reset swipe arrows
+  [0,1,2,3].forEach(i => {
+    const sw = document.getElementById('sw-'+i);
+    sw.className = sw.className.replace(/answered-ok|answered-ko|correct-ans/g,'').trim();
+    sw.className = sw.className.replace(/swipe-arrow (up|down|left|right)/, (m) => m);
+    document.getElementById('sw-label-'+i).textContent = ['A','B','C','D'][i];
+  });
+  // Reset classes properly
+  document.getElementById('sw-0').className = 'swipe-arrow up';
+  document.getElementById('sw-1').className = 'swipe-arrow down';
+  document.getElementById('sw-2').className = 'swipe-arrow left';
+  document.getElementById('sw-3').className = 'swipe-arrow right';
+  // Re-enable clicks
+  document.getElementById('swipe-area').style.pointerEvents = '';
+
+  const audioBanner = document.getElementById('audio-banner');
+  if (yt) {
+    audioBanner.classList.add('active');
+    document.getElementById('audio-q-label').textContent = q;
+    document.getElementById('swipe-emoji').textContent = '🎵';
+  } else {
+    audioBanner.classList.remove('active');
+    document.getElementById('swipe-emoji').textContent = emoji || '🎯';
+  }
+  document.getElementById('swipe-hint').textContent = 'Scorri per rispondere!';
+
+  // progress dots
+  document.getElementById('progress-dots-sm').innerHTML =
+    Array.from({length: total}, (_, i) =>
+      `<div class="pdot-sm ${i < index ? 'done' : i === index ? 'current' : ''}"></div>`
+    ).join('');
+
+  showScreen('sc-game');
+});
+
+function doAnswer(idx, qi) {
+  if (answered) return;
+  answered = true;
+  document.getElementById('swipe-area').style.pointerEvents = 'none';
+  document.getElementById('swipe-hint').textContent = 'Risposta inviata...';
+  socket.emit('answer', { index: qi, answerIndex: idx });
+}
+
+socket.on('answer-result', ({ correct, pts, bonus, score, answerIndex }) => {
+  playerScore = score;
+  document.getElementById('game-score').textContent = score;
+  const banner = document.getElementById('result-banner');
+  banner.className = 'result-banner ' + (correct ? 'ok' : 'ko');
+  const bonusText = bonus > 0 ? ` ⚡+${bonus}` : '';
+  banner.textContent = correct ? `✓ Corretto! +${pts} punti${bonusText}` : '✗ Risposta sbagliata';
+  banner.style.display = 'block';
+});
+
+socket.on('reveal', ({ correctIndex }) => {
+  const dirs = ['up','down','left','right'];
+  for (let i = 0; i < 4; i++) {
+    const sw = document.getElementById('sw-'+i);
+    if (!sw) continue;
+    if (i === correctIndex) {
+      sw.classList.add('correct-ans');
+    } else {
+      sw.classList.add('answered-ko');
+    }
+  }
+});
+
+socket.on('round-end', ({ players, roundNumber, maxRounds, isLastRound }) => {
+  const me = players.find(p => p.name === playerName);
+  const rank = players.indexOf(me) + 1;
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('partial-score').textContent = me ? me.score : playerScore;
+  document.getElementById('partial-rank').textContent = (rank <= 3 ? medals[rank-1] + ' ' : '') + rank + '° posto';
+  const waitEl = document.querySelector('#sc-partial .partial-wait');
+  const titleEl = document.querySelector('#sc-partial .partial-title');
+  const subEl = document.getElementById('partial-subject-name');
+  if (maxRounds > 1) subEl.textContent = 'Round ' + roundNumber + ' di ' + maxRounds;
+  if (isLastRound) {
+    titleEl.textContent = 'Ultima materia! 🏆';
+    if (waitEl) waitEl.textContent = 'Attendi il podio finale...';
+  } else {
+    titleEl.textContent = 'Round completato! 🎉';
+    if (waitEl) waitEl.textContent = 'Il master sceglie la prossima materia...';
+  }
+  showScreen('sc-partial');
+});
+
+socket.on('podium', ({ players }) => {
+  const me = players.find(p => p.name === playerName);
+  const rank = players.indexOf(me) + 1;
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('partial-score').textContent = me ? me.score : playerScore;
+  document.getElementById('partial-rank').textContent = (rank <= 3 ? medals[rank-1] + ' ' : '') + rank + '° posto finale!';
+  document.getElementById('partial-subject-name').textContent = '🏆 Classifica finale';
+  document.getElementById('partial-card') && (document.getElementById('partial-card').querySelector('.partial-wait').textContent = '');
+  showScreen('sc-partial');
+});
+
+socket.on('reset', () => {
+  playerScore = 0; selectedChar = null; answered = false; takenChars = [];
+  document.getElementById('code-input').value = '';
+  document.getElementById('btn-join').disabled = true;
+  showScreen('sc-join');
+});
+
+document.getElementById('code-input').focus();
+document.getElementById('ph-name').addEventListener('input', checkReady);
+</script>
+</body>
+</html>
