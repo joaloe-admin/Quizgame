@@ -58,7 +58,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
 #sc-subject { align-items: center; justify-content: center; padding: 2rem; }
 .subject-heading { font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 8px; text-align: center; }
 .subject-sub { font-size: 16px; color: rgba(255,255,255,0.75); margin-bottom: 0.5rem; text-align: center; }
-.subjects-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; width: 100%; max-width: 860px; margin-bottom: 1.5rem; }
+.subjects-grid { width: 100%; max-width: 700px; }
+.subj-main-card { display: inline-flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.2); border: 3px solid rgba(255,255,255,0.5); border-radius: 24px; padding: 1rem 3rem; cursor: pointer; transition: all .2s; }
+.subj-main-card:hover { background: rgba(255,255,255,0.3); transform: scale(1.03); }
+.subj-row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 10px; }
 .subj-card { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all .15s; }
 .subj-card:hover { background: rgba(255,255,255,0.28); transform: translateY(-3px); }
 .subj-emoji { font-size: 36px; display: block; margin-bottom: 10px; }
@@ -390,12 +393,38 @@ function buildRoundProgressBar() {
 }
 
 function buildSubjectGrid(subjects) {
-  document.getElementById('subjects-grid').innerHTML = subjects.map(s =>
-    `<div class="subj-card" onclick="selectSubject('${s.id}')">
-      <span class="subj-emoji">${s.emoji}</span>
-      <span class="subj-name">${s.name}</span>
-    </div>`
-  ).join('');
+  if (!subjects || !subjects.length) return;
+  // Cultura Generale (first) goes on top featured
+  const main = subjects[0];
+  const rest = subjects.slice(1);
+  const grid = document.getElementById('subjects-grid');
+
+  // Build: featured card + 3+3 grid + random button
+  grid.innerHTML = `
+    <div style="text-align:center;margin-bottom:1rem;">
+      <div class="subj-main-card" onclick="selectSubject('${main.id}')">
+        <span style="font-size:52px">${main.emoji}</span>
+        <span style="font-size:26px;font-weight:900;color:#fff;margin-top:8px">${main.name}</span>
+      </div>
+    </div>
+    <div class="subj-row3">
+      ${rest.slice(0,3).map(s => `
+        <div class="subj-card" onclick="selectSubject('${s.id}')">
+          <span class="subj-emoji">${s.emoji}</span>
+          <span class="subj-name">${s.name}</span>
+        </div>`).join('')}
+    </div>
+    <div class="subj-row3">
+      ${rest.slice(3,6).map(s => `
+        <div class="subj-card" onclick="selectSubject('${s.id}')">
+          <span class="subj-emoji">${s.emoji}</span>
+          <span class="subj-name">${s.name}</span>
+        </div>`).join('')}
+    </div>
+    <div style="text-align:center;margin-top:1rem">
+      <button class="subj-random-btn" onclick="randomSubject()">🎲 Scegli a caso</button>
+    </div>
+  `;
 }
 
 function updateScoreboard(players) {
@@ -404,13 +433,18 @@ function updateScoreboard(players) {
   ).join('');
 }
 
-async function loadQR() {
+async function loadQR(code) {
   try {
-    const data = await fetch('/qr').then(r => r.json());
+    const host = window.location.host;
+    const url = window.location.protocol + '//' + host + '/phone';
+    const QRCode = await import('https://cdn.jsdelivr.net/npm/qrcode/+esm').catch(() => null);
+    // Use server QR but pass the code
+    const data = await fetch('/qr?code=' + (code||'')).then(r => r.json());
     document.getElementById('qr-img').src = data.qr;
-    document.getElementById('lobby-url').textContent = data.url.replace('http://','');
-    document.getElementById('lobby-code').textContent = data.code;
-  } catch(e) {}
+    if (code) document.getElementById('lobby-code').textContent = code;
+  } catch(e) {
+    console.log('QR error:', e);
+  }
 }
 
 // ── SOCKET EVENTS ──
@@ -420,7 +454,7 @@ socket.on('room-info', ({ code, players, subjects }) => {
   document.getElementById('lobby-code').textContent = code;
   buildPlayersBar(players);
   buildSubjectGrid(subjects);
-  loadQR();
+  loadQR(code);
 });
 
 socket.on('players-update', ({ players }) => buildPlayersBar(players));

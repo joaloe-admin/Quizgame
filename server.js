@@ -1088,7 +1088,8 @@ setInterval(() => {
 // ── QR ROUTE ──────────────────────────────────────────────────────────────────
 app.get('/qr', async (req, res) => {
   const host = req.headers.host;
-  const url  = `http://${host}/phone`;
+  const proto = req.headers['x-forwarded-proto'] || 'http';
+  const url  = `${proto}://${host}/phone`;
   try {
     const qr = await QRCode.toDataURL(url, { width: 180, margin: 1 });
     res.json({ qr, url });
