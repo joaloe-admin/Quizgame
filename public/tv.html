@@ -271,7 +271,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
       </div>
       <div class="audio-timer-badge" id="audio-timer">15s</div>
     </div>
-    <audio id="lobby-music" src="/audio/lobby_music.mp3" loop preload="auto"></audio>
+    <audio id="summer-audio" src="/audio/summer_house.mp3" loop preload="auto"></audio>
+    <audio id="game-audio" src="/audio/lobby_music.mp3" loop preload="auto"></audio>
     <div id="yt-container" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;"></div>
     <div class="timer-bar-wrap" id="timer-bar-wrap">
       <div class="timer-bar-num" id="timer-bar-num">15</div>
@@ -327,18 +328,35 @@ let currentSubjectEmoji = '';
 let currentSubjectName = '';
 let timeLeft = 15;
 
-// ── LOBBY MUSIC ──
+// ── AUDIO MANAGEMENT ──
 function startLobbyMusic() {
-  const m = document.getElementById('lobby-music');
-  if (!m) return;
-  m.volume = 0.35;
-  m.play().catch(() => {
-    document.addEventListener('click', () => m.play().catch(()=>{}), { once: true });
+  const s = document.getElementById('summer-audio');
+  if (!s) return;
+  s.volume = 0.4;
+  s.currentTime = 0;
+  s.play().catch(() => {
+    document.addEventListener('click', () => s.play().catch(()=>{}), { once: true });
   });
 }
 function stopLobbyMusic() {
-  const m = document.getElementById('lobby-music');
-  if (m) { m.pause(); m.currentTime = 0; }
+  const s = document.getElementById('summer-audio');
+  if (s) { s.pause(); s.currentTime = 0; }
+}
+function startGameMusic() {
+  stopLobbyMusic();
+  const g = document.getElementById('game-audio');
+  if (!g) return;
+  g.volume = 0.35;
+  g.currentTime = 0;
+  g.play().catch(()=>{});
+}
+function stopGameMusic() {
+  const g = document.getElementById('game-audio');
+  if (g) { g.pause(); g.currentTime = 0; }
+}
+function stopAllMusic() {
+  stopLobbyMusic();
+  stopGameMusic();
 }
 
 function showScreen(id) {
@@ -481,7 +499,7 @@ socket.on('player-answered', ({ players }) => {
 });
 
 socket.on('choose-subject', ({ subjects, roundNumber, maxRounds }) => {
-  stopLobbyMusic();
+  stopAllMusic();
   if (maxRounds) currentMaxRounds = maxRounds;
   if (roundNumber !== undefined) currentRound = roundNumber;
   buildSubjectGrid(subjects);
@@ -499,6 +517,7 @@ socket.on('subject-selected', ({ subject, emoji }) => {
 });
 
 socket.on('question', ({ index, total, subject, emoji, q, yt, opts, players }) => {
+  startGameMusic();
   if (players && players.length) currentPlayers = players;
   timeLeft = 15;
   // Reset timer bar
@@ -556,6 +575,7 @@ socket.on('timer', ({ timeLeft: tl }) => {
 });
 
 socket.on('reveal', ({ correctIndex, players }) => {
+  stopGameMusic();
   document.getElementById('yt-container').innerHTML = '';
   document.getElementById('audio-player').classList.remove('active');
   document.getElementById('q-box').style.display = 'block';
@@ -568,6 +588,7 @@ socket.on('reveal', ({ correctIndex, players }) => {
 });
 
 socket.on('round-end', ({ players, roundNumber, maxRounds, isLastRound }) => {
+  stopAllMusic();
   currentRound = roundNumber;
   if (maxRounds) currentMaxRounds = maxRounds;
   showScreen('sc-round-end');
