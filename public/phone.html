@@ -7,7 +7,7 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; }
-#app { height: 100vh; background: linear-gradient(160deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%); display: flex; flex-direction: column; }
+#app { height: 100vh; background: linear-gradient(160deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%); display: flex; flex-direction: column; }
 
 .screen { display: none; flex-direction: column; height: 100vh; }
 .screen.active { display: flex; }
@@ -26,9 +26,9 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .join-sub { font-size: 16px; color: rgba(255,255,255,0.7); margin-bottom: 2.5rem; }
 .join-card { width: 100%; max-width: 340px; }
 .code-label { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; text-align: center; }
-.code-input { width: 100%; height: 80px; background: rgba(255,255,255,0.95); border: none; border-radius: 20px; font-size: 42px; font-weight: 900; text-align: center; color: #4c1d95; letter-spacing: 12px; outline: none; margin-bottom: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
-.code-input::placeholder { color: #c4b5fd; letter-spacing: 4px; font-size: 28px; }
-.btn-primary { width: 100%; padding: 18px; background: #fff; color: #7c3aed; border: none; border-radius: 99px; font-size: 17px; font-weight: 800; cursor: pointer; transition: all .15s; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+.code-input { width: 100%; height: 80px; background: rgba(255,255,255,0.95); border: none; border-radius: 20px; font-size: 42px; font-weight: 900; text-align: center; color: #1e3a8a; letter-spacing: 12px; outline: none; margin-bottom: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+.code-input::placeholder { color: #93c5fd; letter-spacing: 4px; font-size: 28px; }
+.btn-primary { width: 100%; padding: 18px; background: #fff; color: #1d4ed8; border: none; border-radius: 99px; font-size: 17px; font-weight: 800; cursor: pointer; transition: all .15s; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
 .btn-primary:active { transform: scale(0.97); }
 .btn-primary:disabled { opacity: .4; cursor: default; transform: none; }
 .error-pill { background: rgba(239,68,68,0.25); border: 1px solid rgba(239,68,68,0.4); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #fca5a5; margin-bottom: 14px; display: none; text-align: center; }
@@ -42,8 +42,8 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .name-hero h2 { font-size: 30px; font-weight: 900; color: #fff; margin-bottom: 8px; }
 .name-hero p { font-size: 15px; color: rgba(255,255,255,0.7); }
 .name-input-wrap { width: 100%; max-width: 340px; }
-.name-input { width: 100%; padding: 20px 24px; background: rgba(255,255,255,0.95); border: none; border-radius: 20px; font-size: 22px; font-weight: 700; color: #4c1d95; outline: none; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); text-align: center; }
-.name-input::placeholder { color: #c4b5fd; font-weight: 400; font-size: 18px; }
+.name-input { width: 100%; padding: 20px 24px; background: rgba(255,255,255,0.95); border: none; border-radius: 20px; font-size: 22px; font-weight: 700; color: #1e3a8a; outline: none; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); text-align: center; }
+.name-input::placeholder { color: #93c5fd; font-weight: 400; font-size: 18px; }
 .btn-back { background: rgba(255,255,255,0.15); color: #fff; border: none; border-radius: 99px; padding: 14px 28px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 12px; width: 100%; max-width: 340px; }
 
 /* ── SCREEN 3: PERSONAGGIO (swipe) ── */
@@ -54,13 +54,13 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .char-header p { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 4px; }
 
 /* Carousel */
-.char-carousel { flex: 1; position: relative; overflow: hidden; touch-action: pan-y; }
+.char-carousel { flex: 1; position: relative; overflow: hidden; touch-action: pan-y; min-height: 0; }
 .char-track { display: flex; height: 100%; transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-.char-slide { min-width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; }
-.char-img-wrap { width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 4px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3); transition: all 0.3s; }
+.char-slide { min-width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem 1rem; }
+.char-img-wrap { width: min(200px, 45vw); height: min(200px, 45vw); border-radius: 50%; background: rgba(255,255,255,0.15); border: 4px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1rem; box-shadow: 0 16px 48px rgba(0,0,0,0.3); transition: all 0.3s; }
 .char-img-wrap.selected { border-color: #fff; background: rgba(255,255,255,0.25); box-shadow: 0 0 0 6px rgba(255,255,255,0.3), 0 20px 60px rgba(0,0,0,0.3); }
 .char-img-wrap.unavailable { opacity: 0.35; filter: grayscale(1); }
-.char-img-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.char-img-wrap img { width: 100%; height: 100%; object-fit: contain; object-position: center center; }
 .char-name-big { font-size: 36px; font-weight: 900; color: #fff; margin-bottom: 4px; }
 .char-role-big { font-size: 16px; color: rgba(255,255,255,0.75); margin-bottom: 8px; }
 .char-taken-tag { background: rgba(239,68,68,0.3); border: 1px solid rgba(239,68,68,0.5); color: #fca5a5; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 99px; }
@@ -76,7 +76,7 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .char-dot.active { background: #fff; width: 22px; border-radius: 99px; }
 
 /* Bottom action */
-.char-footer { padding: 12px 20px 24px; flex-shrink: 0; }
+.char-footer { padding: 12px 20px max(24px, env(safe-area-inset-bottom, 24px)); flex-shrink: 0; background: linear-gradient(to top, rgba(0,0,0,0.2), transparent); }
 
 /* ── WAIT SCREENS ── */
 .wait-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
