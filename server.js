@@ -972,81 +972,118 @@ const CHARACTERS = [
   { id: "nerd",   name: "Nerd",   role: "Il Genio",       color: "#60a5fa", gender: "m" },
 ];
 
-// ── GAME STATE ────────────────────────────────────────────────────────────────
-let roomCode       = generateCode();
-let players        = {};
-let tvSocketId     = null;
-let gameState      = 'lobby';
-let currentSubject = null;
-let currentQ       = 0;
-let roundQuestions = [];
-let timerInterval  = null;
-let timeLeft       = 15;
-let roundNumber    = 0;
-let maxRounds      = 1;
-let correctAnswerCount = 0;
+// ── ROOMS ─────────────────────────────────────────────────────────────────────
+const rooms = {}; // { code: roomObj }
+const socketRoom = {}; // { socketId: code }
 
-function getPlayersList() {
-  return Object.values(players).map(p => ({
+function createRoom() {
+  const code = generateCode();
+  rooms[code] = {
+    code,
+    tvSocketId:        null,
+    players:           {},
+    gameState:         'lobby',
+    currentSubject:    null,
+    currentQ:          0,
+    roundQuestions:    [],
+    timerInterval:     null,
+    timeLeft:          15,
+    roundNumber:       0,
+    maxRounds:         1,
+    correctAnswerCount: 0,
+    usedQuestions:     {},
+  };
+  return rooms[code];
+}
+
+function getRoom(code) { return rooms[code]; }
+
+function getRoomBySocket(socketId) {
+  const code = socketRoom[socketId];
+  return code ? rooms[code] : null;
+}
+
+function getPlayersList(room) {
+  return Object.values(room.players).map(p => ({
     name: p.name, char: p.char, score: p.score, answered: p.answered,
   }));
 }
 
-function startTimer() {
-  timeLeft = 15;
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    io.emit('timer', { timeLeft });
-    if (timeLeft <= 0) { clearInterval(timerInterval); revealAnswer(); }
+function emitToRoom(room, event, data) {
+  io.to(room.code).emit(event, data);
+}
+
+function startTimer(room) {
+  room.timeLeft = 15;
+  clearInterval(room.timerInterval);
+  room.timerInterval = setInterval(() => {
+    room.timeLeft--;
+    emitToRoom(room, 'timer', { timeLeft: room.timeLeft });
+    if (room.timeLeft <= 0) { clearInterval(room.timerInterval); revealAnswer(room); }
   }, 1000);
 }
 
-function revealAnswer() {
-  console.log('revealAnswer called, currentQ:', currentQ);
-  clearInterval(timerInterval);
-  gameState = 'reveal';
-  const q = roundQuestions[currentQ];
-  io.emit('reveal', { correctIndex: q.a, players: getPlayersList() });
+function revealAnswer(room) {
+  clearInterval(room.timerInterval);
+  room.gameState = 'reveal';
+  const q = room.roundQuestions[room.currentQ];
+  emitToRoom(room, 'reveal', { correctIndex: q.a, players: getPlayersList(room) });
   setTimeout(() => {
-    currentQ++;
-    if (currentQ >= roundQuestions.length) endRound();
-    else sendQuestion();
+    room.currentQ++;
+    if (room.currentQ >= room.roundQuestions.length) endRound(room);
+    else sendQuestion(room);
   }, 3000);
 }
 
-function sendQuestion() {
-  console.log('sendQuestion called, currentQ:', currentQ, 'roundQuestions.length:', roundQuestions.length, 'gameState:', gameState);
-  if (!roundQuestions || roundQuestions.length === 0) {
-    console.log('ERROR: roundQuestions is empty!');
-    return;
-  }
-  gameState = 'question'; // force correct state
-  Object.values(players).forEach(p => p.answered = false);
-  correctAnswerCount = 0;
-  const q    = roundQuestions[currentQ];
-  const subj = SUBJECTS.find(s => s.id === currentSubject);
-  console.log('Emitting question:', q.q.substring(0, 40));
-  io.emit('question', {
-    index:   currentQ,
-    total:   roundQuestions.length,
+function sendQuestion(room) {
+  if (!room.roundQuestions || room.roundQuestions.length === 0) return;
+  room.gameState = 'question';
+  Object.values(room.players).forEach(p => p.answered = false);
+  room.correctAnswerCount = 0;
+  const q    = room.roundQuestions[room.currentQ];
+  const subj = SUBJECTS.find(s => s.id === room.currentSubject);
+  emitToRoom(room, 'question', {
+    index:   room.currentQ,
+    total:   room.roundQuestions.length,
     subject: subj ? subj.name : '',
     emoji:   subj ? subj.emoji : '',
     q:       q.q,
     yt:      q.yt || null,
     opts:    q.opts,
-    players: getPlayersList(),
+    players: getPlayersList(room),
   });
-  startTimer();
+  startTimer(room);
 }
 
-function endRound() {
-  gameState = 'round-end';
-  roundNumber++;
-  const sorted      = getPlayersList().sort((a, b) => b.score - a.score);
-  const isLastRound = roundNumber >= maxRounds;
-  io.emit('round-end', { players: sorted, roundNumber, maxRounds, isLastRound });
+function endRound(room) {
+  room.gameState = 'round-end';
+  room.roundNumber++;
+  const sorted      = getPlayersList(room).sort((a, b) => b.score - a.score);
+  const isLastRound = room.roundNumber >= room.maxRounds;
+  emitToRoom(room, 'round-end', { players: sorted, roundNumber: room.roundNumber, maxRounds: room.maxRounds, isLastRound });
 }
+
+function pickQuestionsInRoom(room, pool, subjectId) {
+  if (!room.usedQuestions[subjectId]) room.usedQuestions[subjectId] = new Set();
+  const used = room.usedQuestions[subjectId];
+  let available = pool.map((q, i) => ({q, i})).filter(({i}) => !used.has(i));
+  if (available.length < 10) { used.clear(); available = pool.map((q, i) => ({q, i})); }
+  const picked = shuffle(available).slice(0, 10);
+  picked.forEach(({i}) => used.add(i));
+  return picked.map(({q}) => q);
+}
+
+// Cleanup empty rooms after 2 hours
+setInterval(() => {
+  const now = Date.now();
+  Object.keys(rooms).forEach(code => {
+    const room = rooms[code];
+    if (Object.keys(room.players).length === 0 && !room.tvSocketId) {
+      delete rooms[code];
+      console.log('Room', code, 'cleaned up');
+    }
+  });
+}, 1000 * 60 * 30);
 
 // ── QR ROUTE ──────────────────────────────────────────────────────────────────
 app.get('/qr', async (req, res) => {
@@ -1054,7 +1091,7 @@ app.get('/qr', async (req, res) => {
   const url  = `http://${host}/phone`;
   try {
     const qr = await QRCode.toDataURL(url, { width: 180, margin: 1 });
-    res.json({ qr, url, code: roomCode });
+    res.json({ qr, url });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -1063,120 +1100,153 @@ io.on('connection', (socket) => {
   console.log('Connesso:', socket.id);
 
   socket.on('register-tv', () => {
-    tvSocketId = socket.id;
-    socket.emit('room-info', { code: roomCode, players: getPlayersList(), subjects: SUBJECTS });
+    // Create a new room for this TV
+    const room = createRoom();
+    room.tvSocketId = socket.id;
+    socketRoom[socket.id] = room.code;
+    socket.join(room.code);
+    socket.emit('room-info', { code: room.code, players: [], subjects: SUBJECTS });
+    console.log('TV registrata, stanza:', room.code);
   });
 
-
   socket.on('join', ({ code, name, charId }) => {
-    if (code !== roomCode)     { socket.emit('join-error', { msg: 'Codice non valido!' }); return; }
-    if (gameState !== 'lobby') { socket.emit('join-error', { msg: 'La partita è già iniziata!' }); return; }
-    const charTaken = Object.values(players).some(p => p.char.id === charId);
+    const room = getRoom(code);
+    if (!room)                  { socket.emit('join-error', { msg: 'Codice non valido!' }); return; }
+    if (room.gameState !== 'lobby') { socket.emit('join-error', { msg: 'La partita è già iniziata!' }); return; }
+    const charTaken = Object.values(room.players).some(p => p.char.id === charId);
     if (charTaken) { socket.emit('join-error', { msg: 'Personaggio già scelto da qualcun altro!' }); return; }
     const char = CHARACTERS.find(c => c.id === charId);
-    players[socket.id] = { socketId: socket.id, name, char, score: 0, answered: false };
+    room.players[socket.id] = { socketId: socket.id, name, char, score: 0, answered: false };
+    socketRoom[socket.id] = code;
+    socket.join(code);
     socket.emit('joined', { name, char });
-    io.emit('players-update', { players: getPlayersList() });
-    console.log(`${name} (${char.name}) si è unito`);
+    emitToRoom(room, 'players-update', { players: getPlayersList(room) });
+    console.log(`${name} (${char.name}) si è unito alla stanza ${code}`);
   });
 
   socket.on('start-game', ({ rounds }) => {
-    if (Object.keys(players).length < 1) return;
-    maxRounds   = rounds || 1;
-    gameState   = 'subject-select';
-    roundNumber = 0;
-    Object.values(players).forEach(p => p.score = 0);
-    io.emit('choose-subject', { subjects: SUBJECTS, roundNumber: 0, maxRounds });
+    const room = getRoomBySocket(socket.id);
+    if (!room || Object.keys(room.players).length < 1) return;
+    room.maxRounds   = rounds || 1;
+    room.gameState   = 'subject-select';
+    room.roundNumber = 0;
+    Object.values(room.players).forEach(p => p.score = 0);
+    emitToRoom(room, 'choose-subject', { subjects: SUBJECTS, roundNumber: 0, maxRounds: room.maxRounds });
   });
 
   socket.on('select-subject', ({ subjectId }) => {
-    console.log('select-subject received:', subjectId);
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
     const subj = SUBJECTS.find(s => s.id === subjectId);
-    if (!subj) { console.log('ERROR: subject not found!'); return; }
-    currentSubject = subjectId;
-    currentQ       = 0;
-    io.emit('subject-selected', { subject: subj.name, emoji: subj.emoji, subjectId });
-    // Try online questions, fallback to local
+    if (!subj) return;
+    room.currentSubject = subjectId;
+    room.currentQ       = 0;
+    emitToRoom(room, 'subject-selected', { subject: subj.name, emoji: subj.emoji, subjectId });
     fetchOnlineQuestions(subjectId).then(onlineQ => {
-      roundQuestions = onlineQ || pickQuestions(QUESTIONS[subjectId], subjectId);
-      console.log('roundQuestions ready:', roundQuestions.length, 'questions', onlineQ ? '(online)' : '(local)');
-      gameState = 'question-pending';
-      setTimeout(() => sendQuestion(), 2500);
+      room.roundQuestions = onlineQ || pickQuestionsInRoom(room, QUESTIONS[subjectId], subjectId);
+      room.gameState = 'question-pending';
+      setTimeout(() => sendQuestion(room), 2500);
     });
   });
 
   socket.on('random-subject', () => {
-    const available = SUBJECTS.filter(s => s.id !== currentSubject);
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    const available = SUBJECTS.filter(s => s.id !== room.currentSubject);
     const subj      = available[Math.floor(Math.random() * available.length)];
-    currentSubject  = subj.id;
-    currentQ        = 0;
-    io.emit('subject-selected', { subject: subj.name, emoji: subj.emoji, subjectId: subj.id });
+    room.currentSubject = subj.id;
+    room.currentQ       = 0;
+    emitToRoom(room, 'subject-selected', { subject: subj.name, emoji: subj.emoji, subjectId: subj.id });
     fetchOnlineQuestions(subj.id).then(onlineQ => {
-      roundQuestions = onlineQ || pickQuestions(QUESTIONS[subj.id], subj.id);
-      console.log('roundQuestions ready:', roundQuestions.length, 'questions', onlineQ ? '(online)' : '(local)');
-      gameState = 'question-pending';
-      setTimeout(() => sendQuestion(), 2500);
+      room.roundQuestions = onlineQ || pickQuestionsInRoom(room, QUESTIONS[subj.id], subj.id);
+      room.gameState = 'question-pending';
+      setTimeout(() => sendQuestion(room), 2500);
     });
   });
 
   socket.on('next-round', () => {
-    gameState = 'subject-select';
-    io.emit('choose-subject', { subjects: SUBJECTS, roundNumber, maxRounds });
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    room.gameState = 'subject-select';
+    emitToRoom(room, 'choose-subject', { subjects: SUBJECTS, roundNumber: room.roundNumber, maxRounds: room.maxRounds });
   });
 
   socket.on('end-game', () => {
-    gameState     = 'podium';
-    const sorted  = getPlayersList().sort((a, b) => b.score - a.score);
-    io.emit('podium', { players: sorted });
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    room.gameState = 'podium';
+    const sorted   = getPlayersList(room).sort((a, b) => b.score - a.score);
+    emitToRoom(room, 'podium', { players: sorted });
   });
 
   socket.on('answer', ({ index, answerIndex }) => {
-    console.log('answer received, index:', index, 'currentQ:', currentQ, 'gameState:', gameState);
-    if (gameState !== 'question' && gameState !== 'question-pending') { console.log('IGNORED: gameState is', gameState); return; }
-    if (index !== currentQ) { console.log('IGNORED: index mismatch', index, '!=', currentQ); return; }
-    const player = players[socket.id];
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    if (room.gameState !== 'question' && room.gameState !== 'question-pending') return;
+    if (index !== room.currentQ) return;
+    const player = room.players[socket.id];
     if (!player || player.answered) return;
     player.answered = true;
-    const q       = roundQuestions[currentQ];
+    const q       = room.roundQuestions[room.currentQ];
     const correct = answerIndex === q.a;
-    let pts = 0;
-    let bonus = 0;
+    let pts = 0, bonus = 0;
     if (correct) {
-      pts = Math.max(1, timeLeft);
-      // Speed bonus: 1st correct = +5, 2nd = +3, 3rd = +1
-      if (correctAnswerCount === 0) bonus = 5;
-      else if (correctAnswerCount === 1) bonus = 3;
-      else if (correctAnswerCount === 2) bonus = 1;
-      correctAnswerCount++;
+      pts = Math.max(1, room.timeLeft);
+      if (room.correctAnswerCount === 0) bonus = 5;
+      else if (room.correctAnswerCount === 1) bonus = 3;
+      else if (room.correctAnswerCount === 2) bonus = 1;
+      room.correctAnswerCount++;
       pts += bonus;
     }
     player.score += pts;
     socket.emit('answer-result', { correct, pts, bonus, score: player.score });
-    io.emit('player-answered', { name: player.name, players: getPlayersList() });
-    const allAnswered = Object.values(players).every(p => p.answered);
-    if (allAnswered) { clearInterval(timerInterval); revealAnswer(); }
+    emitToRoom(room, 'player-answered', { name: player.name, players: getPlayersList(room) });
+    const allAnswered = Object.values(room.players).every(p => p.answered);
+    if (allAnswered) { clearInterval(room.timerInterval); revealAnswer(room); }
   });
 
   socket.on('reset-game', () => {
-    players        = {};
-    gameState      = 'lobby';
-    currentQ       = 0;
-    currentSubject = null;
-    roundNumber    = 0;
-    maxRounds      = 1;
-    correctAnswerCount = 0;
-    roomCode       = generateCode();
-    clearInterval(timerInterval);
-    io.emit('reset', { code: roomCode });
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    // Reset room state
+    Object.keys(room.players).forEach(sid => {
+      delete socketRoom[sid];
+    });
+    room.players           = {};
+    room.gameState         = 'lobby';
+    room.currentQ          = 0;
+    room.currentSubject    = null;
+    room.roundNumber       = 0;
+    room.maxRounds         = 1;
+    room.correctAnswerCount = 0;
+    clearInterval(room.timerInterval);
+    // Generate new code
+    const oldCode = room.code;
+    const newCode = generateCode();
+    room.code = newCode;
+    rooms[newCode] = room;
+    delete rooms[oldCode];
+    socketRoom[socket.id] = newCode;
+    socket.leave(oldCode);
+    socket.join(newCode);
+    emitToRoom(room, 'reset', { code: newCode });
   });
 
   socket.on('disconnect', () => {
-    if (players[socket.id]) {
-      const name = players[socket.id].name;
-      delete players[socket.id];
-      io.emit('players-update', { players: getPlayersList() });
-      console.log(`${name} disconnesso`);
+    const room = getRoomBySocket(socket.id);
+    if (room) {
+      if (room.players[socket.id]) {
+        const name = room.players[socket.id].name;
+        delete room.players[socket.id];
+        emitToRoom(room, 'players-update', { players: getPlayersList(room) });
+        console.log(`${name} disconnesso dalla stanza ${room.code}`);
+      }
+      if (room.tvSocketId === socket.id) {
+        room.tvSocketId = null;
+        console.log(`TV disconnessa dalla stanza ${room.code}`);
+      }
     }
+    delete socketRoom[socket.id];
   });
 });
 
