@@ -113,21 +113,21 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .audio-mode-q { font-size: 14px; color: #fff; font-weight: 700; margin-top: 2px; }
 
 /* ── SWIPE INTERFACE ── */
-.swipe-area { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 8px; padding: 8px; user-select: none; touch-action: none; }
-.swipe-center { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; pointer-events: none; }
-.swipe-emoji { font-size: 44px; }
-.swipe-hint { font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 600; text-align: center; }
-.swipe-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border-radius: 20px; cursor: pointer; transition: all .15s; border: none; }
-.swipe-arrow:active { transform: scale(0.93); filter: brightness(1.15); }
-.arrow-icon { font-size: 36px; line-height: 1; }
-.arrow-label { font-size: 11px; font-weight: 800; color: #fff; text-align: center; line-height: 1.2; max-width: 90px; }
-.swipe-arrow.up    { grid-column: 2; grid-row: 1; background: #f59e0b; }
-.swipe-arrow.down  { grid-column: 2; grid-row: 3; background: #3b82f6; }
-.swipe-arrow.left  { grid-column: 1; grid-row: 2; background: #ef4444; }
-.swipe-arrow.right { grid-column: 3; grid-row: 2; background: #10b981; }
-.swipe-arrow.answered-ok  { filter: brightness(1.2); box-shadow: 0 0 20px rgba(255,255,255,0.4); }
-.swipe-arrow.answered-ko  { opacity: 0.3; }
-.swipe-arrow.correct-ans  { box-shadow: 0 0 24px rgba(255,255,255,0.6); filter: brightness(1.25); }
+.swipe-area { flex: 1; display: grid; grid-template-columns: 1fr 1.2fr 1fr; grid-template-rows: 1fr 1.2fr 1fr; gap: 10px; padding: 12px; user-select: none; touch-action: none; }
+.swipe-center { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; pointer-events: none; }
+.swipe-emoji { font-size: 40px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3)); }
+.swipe-hint { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 600; text-align: center; }
+.swipe-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: 28px; cursor: pointer; transition: all .15s; border: none; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+.swipe-arrow:active { transform: scale(0.91); filter: brightness(1.15); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.arrow-icon { font-size: 32px; line-height: 1; }
+.arrow-label { font-size: 12px; font-weight: 900; color: rgba(255,255,255,0.9); text-align: center; letter-spacing: 0.5px; }
+.swipe-arrow.up    { grid-column: 2; grid-row: 1; background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+.swipe-arrow.down  { grid-column: 2; grid-row: 3; background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+.swipe-arrow.left  { grid-column: 1; grid-row: 2; background: linear-gradient(135deg, #f87171, #ef4444); }
+.swipe-arrow.right { grid-column: 3; grid-row: 2; background: linear-gradient(135deg, #34d399, #10b981); }
+.swipe-arrow.answered-ok  { filter: brightness(1.2); box-shadow: 0 0 20px rgba(255,255,255,0.5); }
+.swipe-arrow.answered-ko  { opacity: 0.25; box-shadow: none; }
+.swipe-arrow.correct-ans  { box-shadow: 0 0 28px rgba(255,255,255,0.7); filter: brightness(1.3); }
 
 .result-banner { display: none; margin: 0 12px 8px; padding: 14px 20px; border-radius: 16px; font-size: 16px; font-weight: 800; text-align: center; flex-shrink: 0; }
 .result-banner.ok { background: rgba(16,185,129,0.3); border: 2px solid #10b981; color: #fff; }
@@ -152,7 +152,7 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
       <img src="/img/logo.png" alt="JSupport" style="height:40px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
     </div>
     <div class="join-hero">
-      <div class="join-title">Quiz Game</div>
+      <div class="join-title-main">Quiz Game</div>
       <div class="join-sub">Inserisci il codice che vedi sul televisore</div>
       <div class="join-card">
         <div class="error-pill" id="error-pill"></div>
