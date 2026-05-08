@@ -9,6 +9,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/img', express.static(path.join(__dirname, 'public', 'img')));
 app.get('/tv',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'tv.html')));
 app.get('/phone', (req, res) => res.sendFile(path.join(__dirname, 'public', 'phone.html')));
 
