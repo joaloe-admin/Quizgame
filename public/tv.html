@@ -473,29 +473,38 @@ function buildRoundProgressBar() {
 
 function buildSubjectGrid(subjects) {
   if (!subjects || !subjects.length) return;
-  // Cultura Generale (first) goes on top featured
   const main = subjects[0];
   const rest = subjects.slice(1);
   const grid = document.getElementById('subjects-grid');
 
-  // Build: featured card + 3+3 grid + random button
+  // Color gradients per subject
+  const colors = {
+    generale:   'linear-gradient(135deg, #f59e0b, #ef4444)',
+    storia:     'linear-gradient(135deg, #92400e, #b45309)',
+    geografia:  'linear-gradient(135deg, #065f46, #10b981)',
+    sport:      'linear-gradient(135deg, #1d4ed8, #06b6d4)',
+    spettacolo: 'linear-gradient(135deg, #7c3aed, #ec4899)',
+    scienza:    'linear-gradient(135deg, #0369a1, #0ea5e9)',
+    musica:     'linear-gradient(135deg, #be185d, #f43f5e)',
+  };
+
   grid.innerHTML = `
     <div style="text-align:center;margin-bottom:1rem;">
-      <div class="subj-main-card" onclick="selectSubject('${main.id}')">
-        <span style="font-size:52px">${main.emoji}</span>
-        <span style="font-size:26px;font-weight:900;color:#fff;margin-top:8px">${main.name}</span>
+      <div class="subj-main-card" onclick="selectSubject('${main.id}')" style="background:${colors[main.id] || colors.generale}!important;">
+        <span style="font-size:52px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.3))">${main.emoji}</span>
+        <span style="font-size:26px;font-weight:900;color:#fff;margin-top:8px;text-shadow:0 2px 6px rgba(0,0,0,0.3)">${main.name}</span>
       </div>
     </div>
     <div class="subj-row3">
       ${rest.slice(0,3).map(s => `
-        <div class="subj-card" onclick="selectSubject('${s.id}')">
+        <div class="subj-card" onclick="selectSubject('${s.id}')" style="background:${colors[s.id] || 'rgba(255,255,255,0.15)'}">
           <span class="subj-emoji">${s.emoji}</span>
           <span class="subj-name">${s.name}</span>
         </div>`).join('')}
     </div>
     <div class="subj-row3">
       ${rest.slice(3,6).map(s => `
-        <div class="subj-card" onclick="selectSubject('${s.id}')">
+        <div class="subj-card" onclick="selectSubject('${s.id}')" style="background:${colors[s.id] || 'rgba(255,255,255,0.15)'}">
           <span class="subj-emoji">${s.emoji}</span>
           <span class="subj-name">${s.name}</span>
         </div>`).join('')}
