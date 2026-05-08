@@ -113,13 +113,14 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .audio-mode-q { font-size: 14px; color: #fff; font-weight: 700; margin-top: 2px; }
 
 /* ── SWIPE INTERFACE ── */
-.swipe-area { flex: 1; display: grid; grid-template-columns: 1fr 1.2fr 1fr; grid-template-rows: 1fr 1.2fr 1fr; gap: 10px; padding: 12px; user-select: none; touch-action: none; }
-.swipe-center { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; pointer-events: none; }
+.swipe-area { flex: 1; display: flex; align-items: center; justify-content: center; user-select: none; touch-action: none; padding: 12px; }
+.swipe-grid { display: grid; grid-template-columns: 110px 110px 110px; grid-template-rows: 110px 110px 110px; gap: 10px; }
+.swipe-center { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; pointer-events: none; border-radius: 20px; background: rgba(255,255,255,0.08); }
 .swipe-emoji { font-size: 40px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3)); }
 .swipe-hint { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 600; text-align: center; }
 .swipe-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: 28px; cursor: pointer; transition: all .15s; border: none; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
 .swipe-arrow:active { transform: scale(0.91); filter: brightness(1.15); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-.arrow-icon { font-size: 32px; line-height: 1; }
+.arrow-icon { font-size: 42px; line-height: 1; }
 .arrow-label { font-size: 12px; font-weight: 900; color: rgba(255,255,255,0.9); text-align: center; letter-spacing: 0.5px; }
 .swipe-arrow.up    { grid-column: 2; grid-row: 1; background: linear-gradient(135deg, #fbbf24, #f59e0b); }
 .swipe-arrow.down  { grid-column: 2; grid-row: 3; background: linear-gradient(135deg, #60a5fa, #3b82f6); }
@@ -250,13 +251,15 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
       </div>
     </div>
     <div class="swipe-area" id="swipe-area">
-      <div class="swipe-arrow up"    id="sw-0" onclick="doAnswer(0,qIndex)"><div class="arrow-icon">↑</div><div class="arrow-label" id="sw-label-0">A</div></div>
-      <div class="swipe-arrow down"  id="sw-1" onclick="doAnswer(1,qIndex)"><div class="arrow-icon">↓</div><div class="arrow-label" id="sw-label-1">B</div></div>
-      <div class="swipe-arrow left"  id="sw-2" onclick="doAnswer(2,qIndex)"><div class="arrow-icon">←</div><div class="arrow-label" id="sw-label-2">C</div></div>
-      <div class="swipe-arrow right" id="sw-3" onclick="doAnswer(3,qIndex)"><div class="arrow-icon">→</div><div class="arrow-label" id="sw-label-3">D</div></div>
-      <div class="swipe-center">
-        <div class="swipe-emoji" id="swipe-emoji">🎯</div>
-        <div class="swipe-hint" id="swipe-hint">Scorri per rispondere!</div>
+      <div class="swipe-grid">
+        <div class="swipe-arrow up"    id="sw-0" onclick="doAnswer(0,qIndex)"><div class="arrow-icon">↑</div><div class="arrow-label" id="sw-label-0">A</div></div>
+        <div class="swipe-arrow down"  id="sw-1" onclick="doAnswer(1,qIndex)"><div class="arrow-icon">↓</div><div class="arrow-label" id="sw-label-1">B</div></div>
+        <div class="swipe-arrow left"  id="sw-2" onclick="doAnswer(2,qIndex)"><div class="arrow-icon">←</div><div class="arrow-label" id="sw-label-2">C</div></div>
+        <div class="swipe-arrow right" id="sw-3" onclick="doAnswer(3,qIndex)"><div class="arrow-icon">→</div><div class="arrow-label" id="sw-label-3">D</div></div>
+        <div class="swipe-center">
+          <div class="swipe-emoji" id="swipe-emoji">🎯</div>
+          <div class="swipe-hint" id="swipe-hint">Scorri!</div>
+        </div>
       </div>
     </div>
     <div class="result-banner" id="result-banner"></div>
