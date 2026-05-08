@@ -13,9 +13,11 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
 .screen.active { display: flex; z-index: 2; }
 
 /* ── LOBBY ── */
-#sc-lobby { padding: 0.6rem 2rem; display: flex; flex-direction: column; height: 100vh; }
+#sc-lobby { padding: 0.6rem 2rem; display: flex; flex-direction: column; height: 100vh; position: relative; }
 .lobby-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-shrink: 0; }
-.lobby-logo { font-size: 26px; font-weight: 800; color: #fff; }
+.lobby-center-title { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
+.lobby-title-main { font-size: 48px; font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #fff 0%, #bfdbfe 60%, #93c5fd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; white-space: nowrap; }
+.lobby-logo { display: flex; align-items: center; }
 
 .lobby-join-info { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.15); border-radius: 16px; padding: 10px 14px; }
 .lobby-join-url { display: none; }
@@ -24,9 +26,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
 .lobby-qr { border-radius: 8px; background: #fff; padding: 4px; }
 .chars-section { flex: 1; display: flex; flex-direction: column; overflow: visible; min-height: 0; }
 .chars-section-label { font-size: 20px; font-weight: 700; color: rgba(255,255,255,0.9); text-align: center; margin-bottom: 0.4rem; flex-shrink: 0; }
-.lobby-title-wrap { text-align: center; margin: 0.2rem 0 0.6rem; flex-shrink: 0; }
-.lobby-title-main { font-size: 64px; font-weight: 900; color: #fff; letter-spacing: -2px; line-height: 1; text-shadow: 0 4px 24px rgba(0,0,0,0.3); background: linear-gradient(135deg, #fff 0%, #bfdbfe 50%, #93c5fd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.lobby-title-sub { font-size: 18px; font-weight: 600; color: rgba(255,255,255,0.6); letter-spacing: 6px; text-transform: uppercase; margin-top: 2px; }
+
 .chars-bubbles { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px 12px; padding: 0 1.5rem 0.5rem 1.5rem; flex: 1; align-content: center; overflow: visible; }
 .char-bubble { width: 100%; aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,0.12); border: 4px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: border-color .2s; }
 .char-bubble svg { width: 80%; height: 80%; }
@@ -196,7 +196,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
   <!-- LOBBY -->
   <div class="screen active" id="sc-lobby">
     <div class="lobby-topbar">
-      <div class="lobby-logo"><img src="/img/logo.png" alt="JSupport Quiz" style="height:52px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4));"></div>
+      <div class="lobby-logo"><img src="/img/logo.png" alt="JSupport Quiz" style="height:56px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4));"></div>
+      <div class="lobby-center-title">
+        <span class="lobby-title-main">Quiz Game</span>
+      </div>
       <div class="lobby-join-info">
         <div class="lobby-join-text">
           <div class="lobby-join-url" id="lobby-url">quizgame.local/phone</div>
@@ -204,10 +207,6 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
         </div>
         <div class="lobby-qr"><img id="qr-img" width="72" height="72" alt="QR"></div>
       </div>
-    </div>
-    <div class="lobby-title-wrap">
-      <div class="lobby-title-main">Quiz Game</div>
-      <div class="lobby-title-sub">powered by JSupport</div>
     </div>
     <div class="chars-section">
       <div class="chars-section-label">Scegli il tuo personaggio dal telefono</div>
