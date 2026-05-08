@@ -74,10 +74,11 @@ async function translateToItalian(text) {
 }
 
 // Fetch questions from Open Trivia DB
-async function fetchOnlineQuestions(subjectId) {
+async function fetchOnlineQuestions(subjectId, difficulty = 'medium') {
   try {
     const catId = TRIVIA_CATEGORIES[subjectId] || 9;
-    const url = `https://opentdb.com/api.php?amount=10&category=${catId}&difficulty=medium&type=multiple`;
+    const diff = ['easy','medium','hard'].includes(difficulty) ? difficulty : 'medium';
+    const url = `https://opentdb.com/api.php?amount=10&category=${catId}&difficulty=${diff}&type=multiple`;
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
     if (!res.ok) throw new Error('fetch failed');
     const data = await res.json();
@@ -990,6 +991,7 @@ function createRoom() {
     timeLeft:          15,
     roundNumber:       0,
     maxRounds:         1,
+    difficulty:        'medium',
     correctAnswerCount: 0,
     usedQuestions:     {},
   };
@@ -1125,10 +1127,11 @@ io.on('connection', (socket) => {
     console.log(`${name} (${char.name}) si è unito alla stanza ${code}`);
   });
 
-  socket.on('start-game', ({ rounds }) => {
+  socket.on('start-game', ({ rounds, difficulty }) => {
     const room = getRoomBySocket(socket.id);
     if (!room || Object.keys(room.players).length < 1) return;
     room.maxRounds   = rounds || 1;
+    room.difficulty  = difficulty || 'medium';
     room.gameState   = 'subject-select';
     room.roundNumber = 0;
     Object.values(room.players).forEach(p => p.score = 0);
@@ -1143,7 +1146,7 @@ io.on('connection', (socket) => {
     room.currentSubject = subjectId;
     room.currentQ       = 0;
     emitToRoom(room, 'subject-selected', { subject: subj.name, emoji: subj.emoji, subjectId });
-    fetchOnlineQuestions(subjectId).then(onlineQ => {
+    fetchOnlineQuestions(subjectId, room.difficulty).then(onlineQ => {
       room.roundQuestions = onlineQ || pickQuestionsInRoom(room, QUESTIONS[subjectId], subjectId);
       room.gameState = 'question-pending';
       setTimeout(() => sendQuestion(room), 2500);
@@ -1158,7 +1161,7 @@ io.on('connection', (socket) => {
     room.currentSubject = subj.id;
     room.currentQ       = 0;
     emitToRoom(room, 'subject-selected', { subject: subj.name, emoji: subj.emoji, subjectId: subj.id });
-    fetchOnlineQuestions(subj.id).then(onlineQ => {
+    fetchOnlineQuestions(subj.id, room.difficulty).then(onlineQ => {
       room.roundQuestions = onlineQ || pickQuestionsInRoom(room, QUESTIONS[subj.id], subj.id);
       room.gameState = 'question-pending';
       setTimeout(() => sendQuestion(room), 2500);
