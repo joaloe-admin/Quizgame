@@ -1134,7 +1134,7 @@ function revealAnswer(room) {
   clearInterval(room.timerInterval);
   room.gameState = 'reveal';
   const q = room.roundQuestions[room.currentQ];
-  emitToRoom(room, 'reveal', { correctIndex: q.a, players: getPlayersList(room) });
+  emitToRoom(room, 'reveal', { correctIndex: q.a, correctAnswer: q.opts[q.a], players: getPlayersList(room) });
   setTimeout(() => {
     room.currentQ++;
     if (room.currentQ >= room.roundQuestions.length) endRound(room);
@@ -1168,6 +1168,35 @@ function endRound(room) {
   const sorted      = getPlayersList(room).sort((a, b) => b.score - a.score);
   const isLastRound = room.roundNumber >= room.maxRounds;
   emitToRoom(room, 'round-end', { players: sorted, roundNumber: room.roundNumber, maxRounds: room.maxRounds, isLastRound });
+}
+
+// ── FUZZY TEXT MATCH ──────────────────────────────────────────────────────────
+function normalize(str) {
+  return str.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove accents
+    .replace(/[^a-z0-9 ]/g, '') // remove punctuation
+    .trim();
+}
+
+function fuzzyMatch(input, correct) {
+  const a = normalize(input);
+  const b = normalize(correct);
+  if (a === b) return true;
+  if (b.includes(a) && a.length >= 3) return true;
+  if (a.includes(b) && b.length >= 3) return true;
+  // Levenshtein distance for short answers
+  const maxDist = Math.floor(b.length * 0.3);
+  if (levenshtein(a, b) <= maxDist) return true;
+  return false;
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, (_, i) => Array.from({length: n+1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
 }
 
 function pickQuestionsInRoom(room, pool, subjectId) {
@@ -1298,6 +1327,33 @@ io.on('connection', (socket) => {
     room.gameState = 'podium';
     const sorted   = getPlayersList(room).sort((a, b) => b.score - a.score);
     emitToRoom(room, 'podium', { players: sorted });
+  });
+
+  socket.on('answer-text', ({ index, text }) => {
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    if (room.gameState !== 'question' && room.gameState !== 'question-pending') return;
+    if (index !== room.currentQ) return;
+    const player = room.players[socket.id];
+    if (!player || player.answered) return;
+    player.answered = true;
+    const q = room.roundQuestions[room.currentQ];
+    const correctAnswer = q.opts[q.a];
+    const correct = fuzzyMatch(text, correctAnswer);
+    let pts = 0, bonus = 0;
+    if (correct) {
+      pts = Math.max(1, room.timeLeft);
+      if (room.correctAnswerCount === 0) bonus = 5;
+      else if (room.correctAnswerCount === 1) bonus = 3;
+      else if (room.correctAnswerCount === 2) bonus = 1;
+      room.correctAnswerCount++;
+      pts += bonus;
+    }
+    player.score += pts;
+    socket.emit('answer-result', { correct, pts, bonus, score: player.score, correctAnswer });
+    emitToRoom(room, 'player-answered', { name: player.name, correct, players: getPlayersList(room) });
+    const allAnswered = Object.values(room.players).every(p => p.answered);
+    if (allAnswered) { clearInterval(room.timerInterval); revealAnswer(room); }
   });
 
   socket.on('answer', ({ index, answerIndex }) => {
