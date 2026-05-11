@@ -39,7 +39,108 @@ const SUBJECTS = [
   { id: 'spettacolo', name: 'Spettacolo',        emoji: '🎬' },
   { id: 'scienza',    name: 'Natura e Scienza',  emoji: '🔬' },
   { id: 'musica',     name: 'Musica',            emoji: '🎵' },
+  { id: 'italia',     name: 'Italia',            emoji: '🇮🇹' },
 ];
+
+// ── DOMANDE ITALIA ─────────────────────────────────────────────────────────────
+const QUESTIONS_ITALIA = [
+  {q:"Qual è la capitale d'Italia?",opts:["Milano","Napoli","Roma","Torino"],a:2},
+  {q:"Quante regioni ha l'Italia?",opts:["18","19","20","21"],a:2},
+  {q:"Qual è il fiume più lungo d'Italia?",opts:["Tevere","Arno","Adige","Po"],a:3},
+  {q:"Qual è la montagna più alta d'Italia?",opts:["Gran Paradiso","Monte Rosa","Monte Bianco","Cervino"],a:2},
+  {q:"In quale anno fu proclamata la Repubblica Italiana?",opts:["1944","1945","1946","1947"],a:2},
+  {q:"Chi fu il primo Presidente della Repubblica Italiana?",opts:["De Gasperi","Einaudi","Togliatti","Nenni"],a:1},
+  {q:"Qual è il lago più grande d'Italia?",opts:["Lago di Como","Lago Maggiore","Lago di Garda","Lago Trasimeno"],a:2},
+  {q:"Quale città italiana è conosciuta come 'La Serenissima'?",opts:["Firenze","Venezia","Genova","Pisa"],a:1},
+  {q:"Qual è il vulcano più alto d'Europa?",opts:["Vesuvio","Stromboli","Vulcano","Etna"],a:3},
+  {q:"In quale regione si trova la Valle d'Aosta?",opts:["Piemonte","Liguria","Valle d'Aosta","Lombardia"],a:2},
+  {q:"Quale città è capoluogo della Toscana?",opts:["Siena","Pisa","Livorno","Firenze"],a:3},
+  {q:"Quante stelle ha la bandiera europea?",opts:["10","12","14","16"],a:1},
+  {q:"Qual è l'inno nazionale italiano?",opts:["Va' Pensiero","O Sole Mio","Fratelli d'Italia","Bella Ciao"],a:2},
+  {q:"Chi ha scritto 'I Promessi Sposi'?",opts:["Dante","Leopardi","Manzoni","Verga"],a:2},
+  {q:"In quale città si trova la Torre pendente?",opts:["Firenze","Siena","Pisa","Lucca"],a:2},
+  {q:"Qual è la valuta italiana prima dell'Euro?",opts:["Marco","Franco","Corona","Lira"],a:3},
+  {q:"In quale anno l'Italia ha adottato l'Euro?",opts:["1999","2000","2001","2002"],a:3},
+  {q:"Chi ha dipinto la Cappella Sistina?",opts:["Leonardo da Vinci","Raffaello","Michelangelo","Botticelli"],a:2},
+  {q:"Quale squadra ha vinto più campionati di Serie A?",opts:["Milan","Inter","Roma","Juventus"],a:3},
+  {q:"In quale città si trova il Colosseo?",opts:["Napoli","Roma","Milano","Torino"],a:1},
+  {q:"Qual è il mar che bagna la Sicilia a nord?",opts:["Mar Ionio","Mar Tirreno","Mar Adriatico","Mar Mediterraneo"],a:1},
+  {q:"Quante volte ha vinto l'Italia la Coppa del Mondo di calcio?",opts:["2","3","4","5"],a:2},
+  {q:"Chi è l'autore della Divina Commedia?",opts:["Petrarca","Boccaccio","Dante Alighieri","Ariosto"],a:2},
+  {q:"Qual è il porto più grande d'Italia?",opts:["Napoli","Genova","Venezia","Trieste"],a:1},
+  {q:"In quale regione si trova Matera?",opts:["Puglia","Calabria","Basilicata","Campania"],a:2},
+  {q:"Quale città italiana è famosa per la produzione di moda?",opts:["Roma","Napoli","Milano","Torino"],a:2},
+  {q:"Qual è il dialetto più parlato in Italia dopo l'italiano standard?",opts:["Veneto","Siciliano","Napoletano","Romano"],a:1},
+  {q:"In quale anno fu costruito il Colosseo?",opts:["70-80 d.C.","100-110 d.C.","50-60 d.C.","120-130 d.C."],a:0},
+  {q:"Chi ha composto 'Va' Pensiero'?",opts:["Puccini","Rossini","Bellini","Verdi"],a:3},
+  {q:"Qual è la regione italiana con più abitanti?",opts:["Sicilia","Lazio","Campania","Lombardia"],a:3},
+  {q:"Quale città è la capitale della moda italiana?",opts:["Roma","Venezia","Milano","Firenze"],a:2},
+  {q:"In quale regione si trova il Gran Sasso?",opts:["Lazio","Umbria","Abruzzo","Marche"],a:2},
+  {q:"Qual è il simbolo della città di Roma?",opts:["Il Toro","La Lupa","Il Leone","L'Aquila"],a:1},
+  {q:"Quante province ha l'Italia?",opts:["97","103","107","110"],a:3},
+  {q:"Quale pittore italiano è famoso per la Gioconda?",opts:["Michelangelo","Raffaello","Leonardo da Vinci","Tiziano"],a:2},
+  {q:"In quale città si trova il Museo degli Uffizi?",opts:["Roma","Venezia","Firenze","Milano"],a:2},
+  {q:"Qual è il confine naturale tra Italia e Francia a nord-ovest?",opts:["Appennini","Alpi","Pirenei","Dolomiti"],a:1},
+  {q:"Quale città italiana è famosa per il Carnevale?",opts:["Roma","Napoli","Venezia","Firenze"],a:2},
+  {q:"Chi era Garibaldi?",opts:["Poeta","Pittore","Eroe del Risorgimento","Filosofo"],a:2},
+  {q:"In quale anno fu unificata l'Italia?",opts:["1848","1861","1870","1876"],a:1},
+  {q:"Qual è la pizza più famosa di Napoli?",opts:["Pizza Romana","Pizza Margherita","Pizza Capricciosa","Pizza Diavola"],a:1},
+  {q:"In quale regione si trova Pompei?",opts:["Lazio","Calabria","Sicilia","Campania"],a:3},
+  {q:"Quale isola italiana è la più grande del Mediterraneo?",opts:["Sardegna","Sicilia","Elba","Capri"],a:1},
+  {q:"Qual è il simbolo dell'Italia sportiva?",opts:["Il Toro","L'Aquila","Il Leone","Gli Azzurri"],a:3},
+  {q:"In quale città si trova La Scala?",opts:["Roma","Torino","Milano","Venezia"],a:2},
+  {q:"Chi ha inventato il telefono secondo gli italiani?",opts:["Marconi","Meucci","Volta","Fermi"],a:1},
+  {q:"Quale città italiana è famosa per il prosciutto?",opts:["Bologna","Parma","Modena","Ferrara"],a:1},
+  {q:"In quale regione si trova Assisi?",opts:["Toscana","Marche","Umbria","Lazio"],a:2},
+  {q:"Chi è il patrono d'Italia?",opts:["San Pietro","San Paolo","San Francesco","San Giorgio"],a:2},
+  {q:"Quale città italiana è soprannominata 'La Grassa'?",opts:["Milano","Torino","Bologna","Parma"],a:2},
+  {q:"In quale città si trova il Palazzo Ducale di Venezia?",opts:["Venezia","Mantova","Urbino","Ferrara"],a:0},
+  {q:"Qual è la specialità culinaria di Venezia?",opts:["Pizza","Risotto","Sarde in saor","Ribollita"],a:2},
+  {q:"Quante stelle Michelin ha l'Italia?",opts:["Meno di 200","Tra 200 e 300","Più di 300","Più di 500"],a:2},
+  {q:"Qual è il piatto tipico lombardo?",opts:["Pasta alla carbonara","Risotto alla milanese","Arancini","Pesto"],a:1},
+  {q:"Chi ha fondato la Fiat?",opts:["Pirelli","Agnelli","Berlusconi","Barilla"],a:1},
+  {q:"Quale città italiana è famosa per il balsamico?",opts:["Parma","Reggio Emilia","Modena","Bologna"],a:2},
+  {q:"In quale anno Roma è diventata capitale d'Italia?",opts:["1861","1865","1870","1876"],a:2},
+  {q:"Qual è la regione italiana con più turisti stranieri?",opts:["Sicilia","Toscana","Veneto","Lazio"],a:2},
+  {q:"Chi ha scritto 'Le avventure di Pinocchio'?",opts:["De Amicis","Rodari","Collodi","Salgari"],a:2},
+  {q:"Quale città è famosa per la produzione di Parmigiano Reggiano?",opts:["Parma","Reggio Emilia","Modena","Entrambe A e B"],a:3},
+  {q:"In quale città si trova il Teatro San Carlo?",opts:["Roma","Milano","Venezia","Napoli"],a:3},
+  {q:"Qual è il gelato più famoso della tradizione italiana?",opts:["Fior di latte","Stracciatella","Pistacchio","Tutti ugualmente famosi"],a:3},
+  {q:"Quale regione produce il Chianti?",opts:["Umbria","Piemonte","Toscana","Veneto"],a:2},
+  {q:"Qual è il vino più famoso del Piemonte?",opts:["Brunello","Chianti","Barolo","Amarone"],a:2},
+  {q:"Chi ha composto 'La Traviata'?",opts:["Puccini","Rossini","Donizetti","Verdi"],a:3},
+  {q:"Quale regione italiana produce la 'Ndrangheta?",opts:["Sicilia","Campania","Calabria","Puglia"],a:2},
+  {q:"Qual è la lunghezza della penisola italiana?",opts:["900 km","1100 km","1300 km","1500 km"],a:2},
+  {q:"In quale città si trova il Quirinale?",opts:["Milano","Firenze","Roma","Torino"],a:2},
+  {q:"Chi è l'attuale Presidente della Repubblica Italiana?",opts:["Draghi","Conte","Mattarella","Meloni"],a:2},
+  {q:"Quale città italiana ospita il Palio?",opts:["Firenze","Pisa","Siena","Arezzo"],a:2},
+  {q:"Qual è il formaggio italiano più consumato al mondo?",opts:["Parmigiano","Grana Padano","Mozzarella","Pecorino"],a:2},
+  {q:"In quale anno fu costruita la Torre di Pisa?",opts:["1063","1173","1350","1420"],a:1},
+  {q:"Quale città è famosa per il Festival del Cinema?",opts:["Roma","Milano","Venezia","Torino"],a:2},
+  {q:"Qual è la regione italiana con più isole?",opts:["Campania","Sicilia","Sardegna","Toscana"],a:3},
+  {q:"Chi ha composto 'La Bohème'?",opts:["Verdi","Rossini","Donizetti","Puccini"],a:3},
+  {q:"Quale squadra italiana ha vinto più volte la Champions League?",opts:["Juventus","Inter","Milan","Roma"],a:2},
+  {q:"In quale regione si trova Alberobello con i suoi trulli?",opts:["Basilicata","Calabria","Puglia","Campania"],a:2},
+  {q:"Qual è il piatto tipico romano?",opts:["Risotto","Pasta alla carbonara","Pesto","Ribollita"],a:1},
+  {q:"Chi ha inventato il barometro?",opts:["Volta","Galileo","Torricelli","Fermi"],a:2},
+  {q:"Quale scienziato italiano ha scoperto la pila elettrica?",opts:["Fermi","Marconi","Volta","Meucci"],a:2},
+  {q:"Chi ha vinto il Nobel per la Fisica con la pila atomica?",opts:["Volta","Marconi","Fermi","Galileo"],a:2},
+  {q:"In quale anno Cristoforo Colombo scoprì l'America?",opts:["1488","1490","1492","1498"],a:2},
+  {q:"Quale esploratore italiano ha dato il nome all'America?",opts:["Colombo","Vespucci","Cabot","Verrazzano"],a:1},
+  {q:"Chi ha scritto 'Il Principe'?",opts:["Dante","Machiavelli","Boccaccio","Ariosto"],a:1},
+  {q:"In quale città si trova il Cenacolo di Leonardo?",opts:["Roma","Firenze","Venezia","Milano"],a:3},
+  {q:"Qual è il museo più visitato d'Italia?",opts:["Uffizi","Colosseo","Vaticani","Borghese"],a:2},
+  {q:"Quale regione italiana confina con la Svizzera?",opts:["Piemonte","Valle d'Aosta","Lombardia","Tutte e tre"],a:3},
+  {q:"Qual è la squadra di calcio di Torino con la maglia granata?",opts:["Juventus","Torino FC","Genoa","Sampdoria"],a:1},
+  {q:"Quale corridore italiano ha vinto 5 Tour de France?",opts:["Coppi","Bartali","Moser","Pantani"],a:3},
+  {q:"Chi è il più grande tennista italiano di tutti i tempi?",opts:["Sinner","Berrettini","Panatta","Barazzutti"],a:2},
+  {q:"Quale pilota italiano di F1 ha vinto più titoli mondiali?",opts:["Ascari","Lauda","Schumacher","Nessuno"],a:0},
+  {q:"Qual è lo sport più popolare in Italia?",opts:["Tennis","Ciclismo","Calcio","Pallavolo"],a:2},
+  {q:"Quale città italiana è famosa per il tartufo bianco?",opts:["Bologna","Parma","Alba","Cuneo"],a:2},
+];
+
+// ── ITALIA ──────────────────────────────────────────────────────────────────
+// (questions defined above in QUESTIONS_ITALIA)
 
 // ── OPEN TRIVIA DB ────────────────────────────────────────────────────────────
 const TRIVIA_CATEGORIES = {
@@ -50,6 +151,7 @@ const TRIVIA_CATEGORIES = {
   spettacolo: 11,  // Film
   scienza:    17,  // Science & Nature
   musica:     12,  // Music
+  italia:     null, // uses local Italian questions
 };
 
 // HTML entity decode
@@ -76,6 +178,8 @@ async function translateToItalian(text) {
 
 // Fetch questions from Open Trivia DB
 async function fetchOnlineQuestions(subjectId, difficulty = 'medium') {
+  // Italia uses local questions only
+  if (subjectId === 'italia') return null;
   try {
     const catId = TRIVIA_CATEGORIES[subjectId] || 9;
     const diff = ['easy','medium','hard'].includes(difficulty) ? difficulty : 'medium';
@@ -1067,6 +1171,7 @@ function endRound(room) {
 }
 
 function pickQuestionsInRoom(room, pool, subjectId) {
+  if (subjectId === 'italia') pool = QUESTIONS_ITALIA;
   if (!room.usedQuestions[subjectId]) room.usedQuestions[subjectId] = new Set();
   const used = room.usedQuestions[subjectId];
   let available = pool.map((q, i) => ({q, i})).filter(({i}) => !used.has(i));
@@ -1169,6 +1274,17 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('joker-5050', ({ qIndex }) => {
+    const room = getRoomBySocket(socket.id);
+    if (!room || room.gameState !== 'question') return;
+    const q = room.roundQuestions[room.currentQ];
+    if (!q) return;
+    // Find 2 wrong answer indices to remove
+    const wrongIndices = [0,1,2,3].filter(i => i !== q.a);
+    const toRemove = wrongIndices.sort(() => Math.random() - 0.5).slice(0, 2);
+    socket.emit('joker-5050-result', { removeIndices: toRemove });
+  });
+
   socket.on('next-round', () => {
     const room = getRoomBySocket(socket.id);
     if (!room) return;
@@ -1205,7 +1321,7 @@ io.on('connection', (socket) => {
     }
     player.score += pts;
     socket.emit('answer-result', { correct, pts, bonus, score: player.score });
-    emitToRoom(room, 'player-answered', { name: player.name, players: getPlayersList(room) });
+    emitToRoom(room, 'player-answered', { name: player.name, correct, players: getPlayersList(room) });
     const allAnswered = Object.values(room.players).every(p => p.answered);
     if (allAnswered) { clearInterval(room.timerInterval); revealAnswer(room); }
   });
