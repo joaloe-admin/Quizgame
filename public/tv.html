@@ -111,6 +111,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
 .q-player { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
 .q-player .avatar-circle { width: 68px; height: 68px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 3px solid rgba(255,255,255,0.3); overflow: hidden; display: flex; align-items: flex-end; justify-content: center; transition: border-color .3s; }
 .q-player .avatar-circle.answered { border-color: #10b981; }
+.q-player .crown { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 20px; display: none; animation: crownBounce 0.6s cubic-bezier(.34,1.56,.64,1); }
+.q-player.leader .crown { display: block; }
+@keyframes crownBounce { from { transform: translateX(-50%) scale(0) rotate(-20deg); } to { transform: translateX(-50%) scale(1) rotate(0deg); } }
 .q-player .avatar-circle svg { width: 52px; height: 52px; }
 .q-player .crown { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-size: 18px; }
 .q-player .q-score { font-size: 16px; font-weight: 800; color: #fff; }
@@ -134,6 +137,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
 /* Question box */
 .q-box { background: rgba(255,255,255,0.12); border-radius: 20px; padding: 0.8rem 1.5rem; text-align: center; margin-bottom: 0.4rem; flex-shrink: 0; }
 .q-text { font-size: clamp(16px, 2vw, 24px); font-weight: 700; color: #fff; line-height: 1.3; }
+.q-image-wrap { display: none; flex-shrink: 0; justify-content: center; margin-bottom: 0.5rem; }
+.q-image-wrap.visible { display: flex; }
+.q-image { height: 280px; width: auto; max-width: 400px; object-fit: cover; border-radius: 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.4); border: 4px solid rgba(255,255,255,0.3); }
 
 /* ── TIMER BAR ── */
 .timer-bar-wrap { width: 100%; padding: 0 2rem; flex-shrink: 0; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 14px; }
@@ -156,6 +162,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
 .opt.correct .opt-arrow { opacity: 1; }
 .opt.wrong { background: rgba(255,255,255,0.25); color: rgba(255,255,255,0.5); }
 .scoreboard { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; margin-top: 8px; }
+.answer-counter { text-align: center; font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.85); margin-bottom: 4px; flex-shrink: 0; }
+.correct-names { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; min-height: 28px; flex-shrink: 0; }
+.correct-name-chip { background: rgba(16,185,129,0.25); border: 1px solid #10b981; border-radius: 99px; padding: 3px 14px; font-size: 13px; font-weight: 700; color: #fff; animation: chipPop 0.3s cubic-bezier(.34,1.56,.64,1); }
+@keyframes chipPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .score-chip { background: rgba(255,255,255,0.08); border-radius: 99px; padding: 5px 14px; font-size: 13px; color: #ccc9e8; display: flex; align-items: center; gap: 6px; }
 .sdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
@@ -320,12 +330,17 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
     <audio id="summer-audio" src="/audio/summer_house.mp3" loop preload="auto"></audio>
     <audio id="game-audio" src="/audio/lobby_music.mp3" loop preload="auto"></audio>
     <div id="yt-container" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;"></div>
+    <div class="q-image-wrap" id="q-image-wrap">
+      <img class="q-image" id="q-image" src="" alt="Chi è?">
+    </div>
     <div class="timer-bar-wrap" id="timer-bar-wrap">
       <div class="timer-bar-num" id="timer-bar-num">15</div>
       <div class="timer-bar-track"><div class="timer-bar-fill" id="timer-bar-fill"></div></div>
     </div>
     <div class="q-box" id="q-box"><div class="q-text" id="q-text"></div></div>
     <div class="opts-grid" id="opts-grid"></div>
+    <div class="answer-counter" id="answer-counter"></div>
+    <div class="correct-names" id="correct-names"></div>
     <div class="scoreboard" id="scoreboard"></div>
   </div>
 
@@ -548,8 +563,22 @@ socket.on('room-info', ({ code, players, subjects }) => {
 
 socket.on('players-update', ({ players }) => buildPlayersBar(players));
 
-socket.on('player-answered', ({ players }) => {
-  buildQPlayersRow(players, players.filter(p => p.answered).map(p => p.name));
+socket.on('player-answered', ({ name, correct, players }) => {
+  const answered = players.filter(p => p.answered);
+  buildQPlayersRow(players, answered.map(p => p.name));
+  // Update counter
+  const counter = document.getElementById('answer-counter');
+  if (counter) counter.textContent = `${answered.length} / ${players.length} hanno risposto`;
+  // Show correct names
+  if (correct && name) {
+    const container = document.getElementById('correct-names');
+    if (container) {
+      const chip = document.createElement('div');
+      chip.className = 'correct-name-chip';
+      chip.textContent = '✓ ' + name;
+      container.appendChild(chip);
+    }
+  }
   updateScoreboard(players);
 });
 
@@ -571,7 +600,7 @@ socket.on('subject-selected', ({ subject, emoji }) => {
   showScreen('sc-splash');
 });
 
-socket.on('question', ({ index, total, subject, emoji, q, yt, opts, players }) => {
+socket.on('question', ({ index, total, subject, emoji, q, yt, opts, imageUrl, players }) => {
   startGameMusic();
   if (players && players.length) currentPlayers = players;
   timeLeft = 15;
@@ -586,6 +615,10 @@ socket.on('question', ({ index, total, subject, emoji, q, yt, opts, players }) =
   buildRoundProgressBar();
   buildQPlayersRow(currentPlayers, []);
   document.getElementById('scoreboard').innerHTML = '';
+  const ac = document.getElementById('answer-counter');
+  if (ac) ac.textContent = '';
+  const cn = document.getElementById('correct-names');
+  if (cn) cn.innerHTML = '';
 
   const arrows  = ['↑','↓','←','→'];
   const positions = ['opt-top','opt-bottom','opt-left','opt-right'];

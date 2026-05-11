@@ -31,6 +31,169 @@ function pickQuestions(pool, subjectId) {
   return picked.map(({q}) => q);
 }
 
+// ── PERSONAGGI ITALIANI FAMOSI ────────────────────────────────────────────────
+const FAMOUS_ITALIANS = {
+  arte: [
+    { name: 'Leonardo da Vinci', wiki: 'Leonardo_da_Vinci' },
+    { name: 'Michelangelo', wiki: 'Michelangelo' },
+    { name: 'Raffaello Sanzio', wiki: 'Raphael' },
+    { name: 'Sandro Botticelli', wiki: 'Sandro_Botticelli' },
+    { name: 'Caravaggio', wiki: 'Caravaggio' },
+    { name: 'Tiziano Vecellio', wiki: 'Titian' },
+    { name: 'Giotto', wiki: 'Giotto' },
+    { name: 'Canaletto', wiki: 'Canaletto' },
+    { name: 'Amedeo Modigliani', wiki: 'Amedeo_Modigliani' },
+    { name: 'Giorgio de Chirico', wiki: 'Giorgio_de_Chirico' },
+  ],
+  musica: [
+    { name: 'Lucio Battisti', wiki: 'Lucio_Battisti' },
+    { name: 'Fabrizio De André', wiki: 'Fabrizio_De_André' },
+    { name: 'Vasco Rossi', wiki: 'Vasco_Rossi' },
+    { name: 'Luciano Pavarotti', wiki: 'Luciano_Pavarotti' },
+    { name: 'Andrea Bocelli', wiki: 'Andrea_Bocelli' },
+    { name: 'Eros Ramazzotti', wiki: 'Eros_Ramazzotti' },
+    { name: 'Zucchero', wiki: 'Zucchero_(musician)' },
+    { name: 'Laura Pausini', wiki: 'Laura_Pausini' },
+    { name: 'Giorgia', wiki: 'Giorgia_(singer)' },
+    { name: 'Tiziano Ferro', wiki: 'Tiziano_Ferro' },
+    { name: 'Jovanotti', wiki: 'Jovanotti' },
+    { name: 'Mina', wiki: 'Mina_(Italian_singer)' },
+    { name: 'Adriano Celentano', wiki: 'Adriano_Celentano' },
+    { name: 'Raphael Gualazzi', wiki: 'Raphael_Gualazzi' },
+    { name: 'Marco Mengoni', wiki: 'Marco_Mengoni' },
+  ],
+  cinema: [
+    { name: 'Roberto Benigni', wiki: 'Roberto_Benigni' },
+    { name: 'Sophia Loren', wiki: 'Sophia_Loren' },
+    { name: 'Marcello Mastroianni', wiki: 'Marcello_Mastroianni' },
+    { name: 'Monica Bellucci', wiki: 'Monica_Bellucci' },
+    { name: 'Alberto Sordi', wiki: 'Alberto_Sordi' },
+    { name: 'Totò', wiki: 'Totò_(actor)' },
+    { name: 'Vittorio Gassman', wiki: 'Vittorio_Gassman' },
+    { name: 'Anna Magnani', wiki: 'Anna_Magnani' },
+    { name: 'Nino Manfredi', wiki: 'Nino_Manfredi' },
+    { name: 'Claudia Cardinale', wiki: 'Claudia_Cardinale' },
+    { name: 'Giancarlo Giannini', wiki: 'Giancarlo_Giannini' },
+    { name: 'Luca Marinelli', wiki: 'Luca_Marinelli' },
+  ],
+  sport: [
+    { name: 'Valentino Rossi', wiki: 'Valentino_Rossi' },
+    { name: 'Francesco Totti', wiki: 'Francesco_Totti' },
+    { name: 'Roberto Baggio', wiki: 'Roberto_Baggio' },
+    { name: 'Paolo Maldini', wiki: 'Paolo_Maldini' },
+    { name: 'Gianluigi Buffon', wiki: 'Gianluigi_Buffon' },
+    { name: 'Federica Pellegrini', wiki: 'Federica_Pellegrini' },
+    { name: 'Alberto Tomba', wiki: 'Alberto_Tomba' },
+    { name: 'Fausto Coppi', wiki: 'Fausto_Coppi' },
+    { name: 'Marco Pantani', wiki: 'Marco_Pantani' },
+    { name: 'Jannik Sinner', wiki: 'Jannik_Sinner' },
+    { name: 'Matteo Berrettini', wiki: 'Matteo_Berrettini' },
+    { name: 'Filippo Magnini', wiki: 'Filippo_Magnini' },
+    { name: 'Pietro Mennea', wiki: 'Pietro_Mennea' },
+    { name: 'Giorgio Chiellini', wiki: 'Giorgio_Chiellini' },
+    { name: 'Alessandro Del Piero', wiki: 'Alessandro_Del_Piero' },
+  ],
+  scienza: [
+    { name: 'Galileo Galilei', wiki: 'Galileo_Galilei' },
+    { name: 'Alessandro Volta', wiki: 'Alessandro_Volta' },
+    { name: 'Enrico Fermi', wiki: 'Enrico_Fermi' },
+    { name: 'Guglielmo Marconi', wiki: 'Guglielmo_Marconi' },
+    { name: 'Antonio Meucci', wiki: 'Antonio_Meucci' },
+    { name: 'Evangelista Torricelli', wiki: 'Evangelista_Torricelli' },
+    { name: 'Rita Levi-Montalcini', wiki: 'Rita_Levi-Montalcini' },
+    { name: 'Lazzaro Spallanzani', wiki: 'Lazzaro_Spallanzani' },
+  ],
+  politica: [
+    { name: 'Matteo Renzi', wiki: 'Matteo_Renzi' },
+    { name: 'Silvio Berlusconi', wiki: 'Silvio_Berlusconi' },
+    { name: 'Giorgio Napolitano', wiki: 'Giorgio_Napolitano' },
+    { name: 'Romano Prodi', wiki: 'Romano_Prodi' },
+    { name: 'Mario Draghi', wiki: 'Mario_Draghi' },
+    { name: 'Giorgia Meloni', wiki: 'Giorgia_Meloni' },
+    { name: 'Giuseppe Garibaldi', wiki: 'Giuseppe_Garibaldi' },
+    { name: 'Camillo Cavour', wiki: 'Camillo_Cavour' },
+    { name: 'Giovanni Giolitti', wiki: 'Giovanni_Giolitti' },
+  ],
+  letteratura: [
+    { name: 'Dante Alighieri', wiki: 'Dante_Alighieri' },
+    { name: 'Francesco Petrarca', wiki: 'Petrarch' },
+    { name: 'Giovanni Boccaccio', wiki: 'Giovanni_Boccaccio' },
+    { name: 'Italo Calvino', wiki: 'Italo_Calvino' },
+    { name: 'Umberto Eco', wiki: 'Umberto_Eco' },
+    { name: 'Alessandro Manzoni', wiki: 'Alessandro_Manzoni' },
+    { name: 'Giacomo Leopardi', wiki: 'Giacomo_Leopardi' },
+    { name: 'Alberto Moravia', wiki: 'Alberto_Moravia' },
+    { name: 'Primo Levi', wiki: 'Primo_Levi' },
+    { name: 'Elsa Morante', wiki: 'Elsa_Morante' },
+  ],
+  moda: [
+    { name: 'Giorgio Armani', wiki: 'Giorgio_Armani' },
+    { name: 'Gianni Versace', wiki: 'Gianni_Versace' },
+    { name: 'Valentino Garavani', wiki: 'Valentino_Garavani' },
+    { name: 'Roberto Cavalli', wiki: 'Roberto_Cavalli' },
+    { name: 'Miuccia Prada', wiki: 'Miuccia_Prada' },
+    { name: 'Donatella Versace', wiki: 'Donatella_Versace' },
+    { name: 'Salvatore Ferragamo', wiki: 'Salvatore_Ferragamo' },
+  ],
+};
+
+// Cache for Wikipedia images
+const wikiImageCache = {};
+
+async function getWikiImage(wikiTitle) {
+  if (wikiImageCache[wikiTitle]) return wikiImageCache[wikiTitle];
+  try {
+    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`;
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'QuizGame/1.0 (jonathan.aloe@gmail.com)' },
+      signal: AbortSignal.timeout(5000)
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const img = data?.thumbnail?.source || null;
+    if (img) wikiImageCache[wikiTitle] = img;
+    return img;
+  } catch { return null; }
+}
+
+// Generate a "Chi è?" image question
+async function generateImageQuestion(usedNames = new Set()) {
+  // Pick random category
+  const cats = Object.keys(FAMOUS_ITALIANS);
+  const cat = cats[Math.floor(Math.random() * cats.length)];
+  const pool = FAMOUS_ITALIANS[cat];
+
+  // Pick 4 random people (1 correct + 3 wrong)
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  // Try to find one with an image
+  let correct = null;
+  let imgUrl = null;
+  for (const person of shuffled) {
+    if (usedNames.has(person.name)) continue;
+    imgUrl = await getWikiImage(person.wiki);
+    if (imgUrl) { correct = person; break; }
+  }
+  if (!correct) return null;
+
+  // Pick 3 wrong answers from all categories
+  const allPeople = Object.values(FAMOUS_ITALIANS).flat();
+  const wrong = allPeople
+    .filter(p => p.name !== correct.name)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
+
+  const options = [correct, ...wrong].sort(() => Math.random() - 0.5);
+  const correctIndex = options.findIndex(p => p.name === correct.name);
+
+  return {
+    type: 'image',
+    q: 'Chi è questo personaggio famoso italiano?',
+    imageUrl: imgUrl,
+    opts: options.map(p => p.name),
+    a: correctIndex,
+  };
+}
+
 const SUBJECTS = [
   { id: 'generale',   name: 'Cultura Generale', emoji: '🌍' },
   { id: 'storia',     name: 'Storia',            emoji: '🏛️' },
@@ -40,6 +203,7 @@ const SUBJECTS = [
   { id: 'scienza',    name: 'Natura e Scienza',  emoji: '🔬' },
   { id: 'musica',     name: 'Musica',            emoji: '🎵' },
   { id: 'italia',     name: 'Italia',            emoji: '🇮🇹' },
+  { id: 'foto',       name: 'Chi è?',            emoji: '📸' },
 ];
 
 // ── DOMANDE ITALIA ─────────────────────────────────────────────────────────────
@@ -152,6 +316,7 @@ const TRIVIA_CATEGORIES = {
   scienza:    17,  // Science & Nature
   musica:     12,  // Music
   italia:     null, // uses local Italian questions
+  foto:       null, // uses Wikipedia image questions
 };
 
 // HTML entity decode
@@ -178,8 +343,8 @@ async function translateToItalian(text) {
 
 // Fetch questions from Open Trivia DB
 async function fetchOnlineQuestions(subjectId, difficulty = 'medium') {
-  // Italia uses local questions only
-  if (subjectId === 'italia') return null;
+  // Italia and Foto use local questions only
+  if (subjectId === 'italia' || subjectId === 'foto') return null;
   try {
     const catId = TRIVIA_CATEGORIES[subjectId] || 9;
     const diff = ['easy','medium','hard'].includes(difficulty) ? difficulty : 'medium';
@@ -1150,14 +1315,15 @@ function sendQuestion(room) {
   const q    = room.roundQuestions[room.currentQ];
   const subj = SUBJECTS.find(s => s.id === room.currentSubject);
   emitToRoom(room, 'question', {
-    index:   room.currentQ,
-    total:   room.roundQuestions.length,
-    subject: subj ? subj.name : '',
-    emoji:   subj ? subj.emoji : '',
-    q:       q.q,
-    yt:      q.yt || null,
-    opts:    q.opts,
-    players: getPlayersList(room),
+    index:    room.currentQ,
+    total:    room.roundQuestions.length,
+    subject:  subj ? subj.name : '',
+    emoji:    subj ? subj.emoji : '',
+    q:        q.q,
+    yt:       q.yt || null,
+    opts:     q.opts,
+    imageUrl: q.imageUrl || null,
+    players:  getPlayersList(room),
   });
   startTimer(room);
 }
@@ -1201,6 +1367,7 @@ function levenshtein(a, b) {
 
 function pickQuestionsInRoom(room, pool, subjectId) {
   if (subjectId === 'italia') pool = QUESTIONS_ITALIA;
+  if (subjectId === 'foto') pool = []; // handled separately
   if (!room.usedQuestions[subjectId]) room.usedQuestions[subjectId] = new Set();
   const used = room.usedQuestions[subjectId];
   let available = pool.map((q, i) => ({q, i})).filter(({i}) => !used.has(i));
@@ -1281,11 +1448,29 @@ io.on('connection', (socket) => {
     room.currentSubject = subjectId;
     room.currentQ       = 0;
     emitToRoom(room, 'subject-selected', { subject: subj.name, emoji: subj.emoji, subjectId });
-    fetchOnlineQuestions(subjectId, room.difficulty).then(onlineQ => {
-      room.roundQuestions = onlineQ || pickQuestionsInRoom(room, QUESTIONS[subjectId], subjectId);
-      room.gameState = 'question-pending';
-      setTimeout(() => sendQuestion(room), 2500);
-    });
+    if (subjectId === 'foto') {
+      // Generate 10 image questions
+      const usedNames = new Set();
+      const imageQs = [];
+      const generateNext = async () => {
+        if (imageQs.length >= 10) {
+          room.roundQuestions = imageQs;
+          room.gameState = 'question-pending';
+          setTimeout(() => sendQuestion(room), 2500);
+          return;
+        }
+        const q = await generateImageQuestion(usedNames);
+        if (q) { imageQs.push(q); usedNames.add(q.opts[q.a]); }
+        generateNext();
+      };
+      generateNext();
+    } else {
+      fetchOnlineQuestions(subjectId, room.difficulty).then(onlineQ => {
+        room.roundQuestions = onlineQ || pickQuestionsInRoom(room, QUESTIONS[subjectId], subjectId);
+        room.gameState = 'question-pending';
+        setTimeout(() => sendQuestion(room), 2500);
+      });
+    }
   });
 
   socket.on('random-subject', () => {
