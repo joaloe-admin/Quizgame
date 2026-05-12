@@ -143,17 +143,25 @@ const wikiImageCache = {};
 async function getWikiImage(wikiTitle) {
   if (wikiImageCache[wikiTitle]) return wikiImageCache[wikiTitle];
   try {
-    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`;
+    // Use Wikipedia API action=query which is more reliable
+    const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(wikiTitle)}&prop=pageimages&format=json&pithumbsize=400&origin=*`;
     const res = await fetch(url, {
-      headers: { 'User-Agent': 'QuizGame/1.0 (jonathan.aloe@gmail.com)' },
-      signal: AbortSignal.timeout(5000)
+      headers: { 
+        'User-Agent': 'QuizGame/1.0 (https://quizgame-production-9161.up.railway.app; jonathan.aloe@gmail.com)',
+        'Accept': 'application/json'
+      },
+      signal: AbortSignal.timeout(8000)
     });
-    if (!res.ok) return null;
+    if (!res.ok) { console.log('Wiki API error:', res.status, wikiTitle); return null; }
     const data = await res.json();
-    const img = data?.thumbnail?.source || null;
+    const pages = data?.query?.pages;
+    if (!pages) return null;
+    const page = Object.values(pages)[0];
+    const img = page?.thumbnail?.source || null;
+    console.log('Wiki image for', wikiTitle, ':', img ? '✓' : '✗');
     if (img) wikiImageCache[wikiTitle] = img;
     return img;
-  } catch { return null; }
+  } catch(e) { console.log('Wiki fetch error:', wikiTitle, e.message); return null; }
 }
 
 // Generate a "Chi è?" image question
