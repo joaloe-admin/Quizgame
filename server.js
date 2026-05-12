@@ -193,10 +193,12 @@ async function generateImageQuestion(usedNames = new Set()) {
   const options = [correct, ...wrong].sort(() => Math.random() - 0.5);
   const correctIndex = options.findIndex(p => p.name === correct.name);
 
+  // Use proxy to avoid CORS
+  const proxiedUrl = `/imgproxy?url=${encodeURIComponent(imgUrl)}`;
   return {
     type: 'image',
     q: 'Chi è questo personaggio famoso italiano?',
-    imageUrl: imgUrl,
+    imageUrl: proxiedUrl,
     opts: options.map(p => p.name),
     a: correctIndex,
   };
@@ -1398,6 +1400,22 @@ setInterval(() => {
 }, 1000 * 60 * 30);
 
 // ── QR ROUTE ──────────────────────────────────────────────────────────────────
+// Image proxy to avoid CORS issues
+app.get('/imgproxy', async (req, res) => {
+  const url = req.query.url;
+  if (!url) return res.status(400).send('Missing url');
+  try {
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'QuizGame/1.0 (https://quizgame-production-9161.up.railway.app)' }
+    });
+    if (!response.ok) return res.status(404).send('Image not found');
+    const buffer = await response.arrayBuffer();
+    res.set('Content-Type', response.headers.get('content-type') || 'image/jpeg');
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.send(Buffer.from(buffer));
+  } catch(e) { res.status(500).send('Error: ' + e.message); }
+});
+
 app.get('/qr', async (req, res) => {
   const host = req.headers.host;
   const proto = req.headers['x-forwarded-proto'] || 'http';
