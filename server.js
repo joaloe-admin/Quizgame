@@ -13,6 +13,22 @@ app.use('/img', express.static(path.join(__dirname, 'public', 'img')));
 app.get('/tv',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'tv.html')));
 app.get('/phone', (req, res) => res.sendFile(path.join(__dirname, 'public', 'phone.html')));
 
+// Image proxy to avoid CORS issues
+app.get('/imgproxy', async (req, res) => {
+  const url = req.query.url;
+  if (!url) return res.status(400).send('Missing url');
+  try {
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'QuizGame/1.0 (https://quizgame-production-9161.up.railway.app)' }
+    });
+    if (!response.ok) return res.status(404).send('Image not found');
+    const buffer = await response.arrayBuffer();
+    res.set('Content-Type', response.headers.get('content-type') || 'image/jpeg');
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.send(Buffer.from(buffer));
+  } catch(e) { res.status(500).send('Error: ' + e.message); }
+});
+
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
 function generateCode() { return String(Math.floor(1000 + Math.random() * 9000)); }
 
@@ -1400,22 +1416,6 @@ setInterval(() => {
 }, 1000 * 60 * 30);
 
 // ── QR ROUTE ──────────────────────────────────────────────────────────────────
-// Image proxy to avoid CORS issues
-app.get('/imgproxy', async (req, res) => {
-  const url = req.query.url;
-  if (!url) return res.status(400).send('Missing url');
-  try {
-    const response = await fetch(url, {
-      headers: { 'User-Agent': 'QuizGame/1.0 (https://quizgame-production-9161.up.railway.app)' }
-    });
-    if (!response.ok) return res.status(404).send('Image not found');
-    const buffer = await response.arrayBuffer();
-    res.set('Content-Type', response.headers.get('content-type') || 'image/jpeg');
-    res.set('Cache-Control', 'public, max-age=86400');
-    res.send(Buffer.from(buffer));
-  } catch(e) { res.status(500).send('Error: ' + e.message); }
-});
-
 app.get('/qr', async (req, res) => {
   const host = req.headers.host;
   const proto = req.headers['x-forwarded-proto'] || 'http';
