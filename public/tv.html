@@ -649,6 +649,20 @@ socket.on('question', ({ index, total, subject, emoji, q, yt, opts, imageUrl, pl
     document.getElementById('q-text').textContent = q;
     ytEl.innerHTML = '';
   }
+
+  // Handle image questions
+  const imgWrap = document.getElementById('q-image-wrap');
+  const imgEl = document.getElementById('q-image');
+  if (imgWrap && imgEl) {
+    if (imageUrl) {
+      imgEl.src = imageUrl;
+      imgWrap.classList.add('visible');
+      qBox.style.display = 'none'; // hide text question, show only image
+    } else {
+      imgWrap.classList.remove('visible');
+      imgEl.src = '';
+    }
+  }
 });
 
 socket.on('timer', ({ timeLeft: tl }) => {
