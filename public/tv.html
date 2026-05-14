@@ -21,10 +21,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
 .lobby-join-info { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.15); border-radius: 16px; padding: 10px 14px; }
 .lobby-join-code { font-size: 38px; font-weight: 900; color: #fff; letter-spacing: 8px; }
 .lobby-qr { border-radius: 8px; background: #fff; padding: 4px; }
-.chars-section { flex: 1; display: flex; flex-direction: column; overflow: visible; min-height: 0; }
+.chars-section { flex: 1; display: flex; flex-direction: column; overflow: visible; min-height: 0; max-height: 55vh; justify-content: center; }
 .chars-section-label { font-size: 20px; font-weight: 700; color: rgba(255,255,255,0.9); text-align: center; margin-bottom: 0.4rem; flex-shrink: 0; }
-.chars-bubbles { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px 12px; padding: 0 1.5rem 0.5rem 1.5rem; flex: 1; align-content: center; overflow: visible; }
-.char-bubble { width: 100%; aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,0.12); border: 4px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: border-color .2s; }
+.chars-bubbles { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px 12px; padding: 0 1.5rem 0.5rem 1.5rem; align-content: center; overflow: visible; }
+.char-bubble { width: 100%; max-width: 120px; aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,0.12); border: 4px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: border-color .2s; margin: 0 auto; }
 .char-bubble-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .char-bubble-name { font-size: clamp(13px, 1.4vw, 18px); font-weight: 700; color: #fff; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 .char-bubble .taken-badge { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); background: #10b981; color: #fff; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 99px; white-space: nowrap; }
