@@ -18,12 +18,11 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .conn-indicator { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
 .topbar-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 99px; }
 
-/* ── SCREEN 1: JOIN (codice) ── */
+/* ── SCREEN 1: JOIN ── */
 #sc-join { align-items: center; justify-content: space-between; padding: 0; }
 .join-hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1.5rem; }
-.join-logo { font-size: 72px; margin-bottom: 0.5rem; }
 .join-title { font-size: clamp(42px, 12vw, 64px); font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #fff 0%, #bfdbfe 60%, #93c5fd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin-bottom: 1rem; text-align: center; }
-.join-sub { font-size: 16px; color: rgba(255,255,255,0.7); margin-bottom: 2.5rem; }
+.join-sub { font-size: 16px; color: rgba(255,255,255,0.7); margin-bottom: 2.5rem; text-align: center; }
 .join-card { width: 100%; max-width: 340px; }
 .code-label { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; text-align: center; }
 .code-input { width: 100%; height: 80px; background: rgba(255,255,255,0.95); border: none; border-radius: 20px; font-size: 42px; font-weight: 900; text-align: center; color: #1e3a8a; letter-spacing: 12px; outline: none; margin-bottom: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
@@ -33,12 +32,11 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .btn-primary:disabled { opacity: .4; cursor: default; transform: none; }
 .error-pill { background: rgba(239,68,68,0.25); border: 1px solid rgba(239,68,68,0.4); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #fca5a5; margin-bottom: 14px; display: none; text-align: center; }
 .error-pill.show { display: block; }
-.join-bottom { padding: 0 1.5rem 2rem; width: 100%; max-width: 340px; align-self: center; }
 
 /* ── SCREEN 2: NOME ── */
 #sc-name { align-items: center; justify-content: center; padding: 2rem 1.5rem; }
 .name-hero { text-align: center; margin-bottom: 2.5rem; }
-.name-hero .step-badge { display: inline-block; background: rgba(255,255,255,0.2); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 99px; margin-bottom: 1rem; letter-spacing: 1px; text-transform: uppercase; }
+.step-badge { display: inline-block; background: rgba(255,255,255,0.2); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 99px; margin-bottom: 1rem; letter-spacing: 1px; text-transform: uppercase; }
 .name-hero h2 { font-size: 30px; font-weight: 900; color: #fff; margin-bottom: 8px; }
 .name-hero p { font-size: 15px; color: rgba(255,255,255,0.7); }
 .name-input-wrap { width: 100%; max-width: 340px; }
@@ -46,39 +44,30 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .name-input::placeholder { color: #93c5fd; font-weight: 400; font-size: 18px; }
 .btn-back { background: rgba(255,255,255,0.15); color: #fff; border: none; border-radius: 99px; padding: 14px 28px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 12px; width: 100%; max-width: 340px; }
 
-/* ── SCREEN 3: PERSONAGGIO (swipe) ── */
+/* ── SCREEN 3: PERSONAGGIO ── */
 #sc-char { padding: 0; overflow: hidden; }
 .char-header { padding: 16px 20px 0; flex-shrink: 0; }
-.char-header .step-badge { display: inline-block; background: rgba(255,255,255,0.2); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 99px; letter-spacing: 1px; text-transform: uppercase; }
 .char-header h2 { font-size: 24px; font-weight: 900; color: #fff; margin-top: 8px; }
 .char-header p { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 4px; }
-
-/* Carousel */
 .char-carousel { flex: 1; position: relative; overflow: hidden; touch-action: pan-y; min-height: 0; }
 .char-track { display: flex; height: 100%; transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 .char-slide { min-width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem 1rem; }
 .char-img-wrap { width: min(200px, 45vw); height: min(200px, 45vw); border-radius: 50%; background: rgba(255,255,255,0.15); border: 4px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1rem; box-shadow: 0 16px 48px rgba(0,0,0,0.3); transition: all 0.3s; }
-.char-img-wrap.selected { border-color: #fff; background: rgba(255,255,255,0.25); box-shadow: 0 0 0 6px rgba(255,255,255,0.3), 0 20px 60px rgba(0,0,0,0.3); }
+.char-img-wrap.selected { border-color: #fff; box-shadow: 0 0 0 6px rgba(255,255,255,0.3), 0 20px 60px rgba(0,0,0,0.3); }
 .char-img-wrap.unavailable { opacity: 0.35; filter: grayscale(1); }
-.char-img-wrap img { width: 100%; height: 100%; object-fit: contain; object-position: center center; }
+.char-img-wrap img { width: 100%; height: 100%; object-fit: contain; }
 .char-name-big { font-size: 36px; font-weight: 900; color: #fff; margin-bottom: 4px; }
 .char-role-big { font-size: 16px; color: rgba(255,255,255,0.75); margin-bottom: 8px; }
 .char-taken-tag { background: rgba(239,68,68,0.3); border: 1px solid rgba(239,68,68,0.5); color: #fca5a5; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 99px; }
-
-/* Nav arrows */
 .char-nav { position: absolute; top: 50%; transform: translateY(-50%); display: flex; justify-content: space-between; width: 100%; padding: 0 8px; pointer-events: none; }
 .char-nav-btn { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); color: #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: all; transition: all .15s; backdrop-filter: blur(8px); }
-.char-nav-btn:active { background: rgba(255,255,255,0.4); transform: scale(0.92); }
-
-/* Dots indicator */
+.char-nav-btn:active { background: rgba(255,255,255,0.4); }
 .char-dots { display: flex; justify-content: center; gap: 6px; padding: 10px 0; flex-shrink: 0; }
 .char-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: all 0.3s; }
 .char-dot.active { background: #fff; width: 22px; border-radius: 99px; }
-
-/* Bottom action */
 .char-footer { padding: 12px 20px max(24px, env(safe-area-inset-bottom, 24px)); flex-shrink: 0; background: linear-gradient(to top, rgba(0,0,0,0.2), transparent); }
 
-/* ── WAIT SCREENS ── */
+/* ── WAIT LOBBY ── */
 .wait-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
 .wait-avatar { width: 130px; height: 130px; border-radius: 50%; overflow: hidden; border: 4px solid rgba(255,255,255,0.4); margin-bottom: 1.2rem; box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
 .wait-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
@@ -91,18 +80,14 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes dotPulse { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1)} }
 
-.wait-subject-icon { font-size: 64px; margin-bottom: 1rem; }
-.wait-subject-msg { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 8px; }
-.wait-subject-sub { font-size: 15px; color: rgba(255,255,255,0.7); text-align: center; line-height: 1.6; }
-
 /* ── GAME SCREEN ── */
 #sc-game { padding: 0; }
 .game-header { padding: 10px 16px; flex-shrink: 0; }
 .game-subject-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .game-subject-badge { background: rgba(255,255,255,0.2); color: #fff; font-size: 13px; font-weight: 700; padding: 5px 14px; border-radius: 99px; }
 .game-score-badge { background: rgba(255,255,255,0.2); color: #fff; font-size: 13px; font-weight: 700; padding: 5px 14px; border-radius: 99px; }
-.progress-dots-sm { display: flex; gap: 6px; justify-content: center; }
-.pdot-sm { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); }
+.progress-dots-sm { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+.pdot-sm { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.25); }
 .pdot-sm.done { background: rgba(255,255,255,0.6); }
 .pdot-sm.current { background: #fff; }
 
@@ -119,27 +104,25 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .swipe-emoji { font-size: 40px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3)); }
 .swipe-hint { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 600; text-align: center; }
 .swipe-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: 28px; cursor: pointer; transition: all .15s; border: none; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-.swipe-arrow:active { transform: scale(0.91); filter: brightness(1.15); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.swipe-arrow:active { transform: scale(0.91); filter: brightness(1.15); }
 .arrow-icon { font-size: 42px; line-height: 1; }
 .arrow-label { font-size: 12px; font-weight: 900; color: rgba(255,255,255,0.9); text-align: center; letter-spacing: 0.5px; }
 .swipe-arrow.up    { grid-column: 2; grid-row: 1; background: linear-gradient(135deg, #fbbf24, #f59e0b); }
 .swipe-arrow.down  { grid-column: 2; grid-row: 3; background: linear-gradient(135deg, #60a5fa, #3b82f6); }
 .swipe-arrow.left  { grid-column: 1; grid-row: 2; background: linear-gradient(135deg, #f87171, #ef4444); }
 .swipe-arrow.right { grid-column: 3; grid-row: 2; background: linear-gradient(135deg, #34d399, #10b981); }
-.swipe-arrow.answered-ok  { filter: brightness(1.2); box-shadow: 0 0 20px rgba(255,255,255,0.5); }
 .swipe-arrow.answered-ko  { opacity: 0.25; box-shadow: none; }
 .swipe-arrow.correct-ans  { box-shadow: 0 0 28px rgba(255,255,255,0.7); filter: brightness(1.3); }
 
 .result-banner { display: none; margin: 0 12px 8px; padding: 14px 20px; border-radius: 16px; font-size: 16px; font-weight: 800; text-align: center; flex-shrink: 0; }
-.joker-bar { display: flex; justify-content: center; gap: 12px; padding: 6px 12px; flex-shrink: 0; }
-.joker-btn { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.35); border-radius: 99px; padding: 8px 20px; font-size: 14px; font-weight: 800; color: #fff; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px; }
+.joker-bar { display: flex; justify-content: center; gap: 12px; padding: 4px 12px; flex-shrink: 0; }
+.joker-btn { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.35); border-radius: 99px; padding: 7px 18px; font-size: 13px; font-weight: 800; color: #fff; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px; }
 .joker-btn:active { transform: scale(0.95); }
 .joker-btn:disabled { opacity: 0.3; cursor: default; }
-.joker-btn.used { opacity: 0.3; text-decoration: line-through; }
 .result-banner.ok { background: rgba(16,185,129,0.3); border: 2px solid #10b981; color: #fff; }
 .result-banner.ko { background: rgba(239,68,68,0.3); border: 2px solid #ef4444; color: #fff; }
 
-/* ── PARTIAL / PODIUM ── */
+/* ── PODIUM PLAYER ── */
 .partial-card { background: rgba(255,255,255,0.15); border-radius: 28px; padding: 2rem 1.5rem; width: 100%; max-width: 340px; text-align: center; border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(12px); }
 .partial-title { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 6px; }
 .partial-sub { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 1.5rem; }
@@ -153,12 +136,11 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 
   <!-- SCREEN 1: CODICE -->
   <div class="screen active" id="sc-join">
-    <!-- Logo piccolo in alto a sinistra -->
     <div style="padding: 14px 18px; flex-shrink:0;">
       <img src="/img/logo.png" alt="JSupport" style="height:40px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
     </div>
     <div class="join-hero">
-      <div class="join-title-main">Quiz Game</div>
+      <div class="join-title">Quiz Game</div>
       <div class="join-sub">Inserisci il codice che vedi sul televisore</div>
       <div class="join-card">
         <div class="error-pill" id="error-pill"></div>
@@ -185,7 +167,7 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
     </div>
   </div>
 
-  <!-- SCREEN 3: PERSONAGGIO (carousel) -->
+  <!-- SCREEN 3: PERSONAGGIO -->
   <div class="screen" id="sc-char">
     <div class="char-header">
       <div class="step-badge">Passo 2 di 2</div>
@@ -221,20 +203,6 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
     </div>
   </div>
 
-  <!-- WAIT: subject being chosen -->
-  <div class="screen" id="sc-wait-subject">
-    <div class="topbar">
-      <div class="topbar-logo"><img src="/img/logo.png" alt="JSupport" style="height:28px;object-fit:contain;filter:brightness(0) invert(1);"> <div class="conn-indicator"></div></div>
-      <div class="topbar-name" id="topbar-name3"></div>
-    </div>
-    <div class="wait-center">
-      <div class="wait-subject-icon">🎯</div>
-      <div class="wait-subject-msg">Round completato!</div>
-      <div class="wait-subject-sub">Il master sta scegliendo<br>la prossima materia...</div>
-      <div class="dots" style="margin-top:1.5rem"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-    </div>
-  </div>
-
   <!-- GAME -->
   <div class="screen" id="sc-game">
     <div class="topbar">
@@ -243,7 +211,7 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
     </div>
     <div class="game-header">
       <div class="game-subject-row">
-        <div class="game-subject-badge" id="game-subject-badge"></div>
+        <div class="game-subject-badge" id="game-subject-badge">🌍 Quiz</div>
         <div class="game-score-badge">⭐ <span id="game-score">0</span></div>
       </div>
       <div class="progress-dots-sm" id="progress-dots-sm"></div>
@@ -273,19 +241,18 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
     <div class="result-banner" id="result-banner"></div>
   </div>
 
-  <!-- PARTIAL PODIUM -->
+  <!-- CLASSIFICA FINALE (dal telefono) -->
   <div class="screen" id="sc-partial">
     <div class="topbar">
       <div class="topbar-logo"><img src="/img/logo.png" alt="JSupport" style="height:28px;object-fit:contain;filter:brightness(0) invert(1);"> <div class="conn-indicator"></div></div>
     </div>
     <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:1rem 1.5rem">
       <div class="partial-card">
-        <div class="partial-title" id="partial-title">Fine round! 🎉</div>
-        <div class="partial-sub" id="partial-subject-name"></div>
+        <div class="partial-title" id="partial-title">Partita finita! 🏆</div>
+        <div class="partial-sub" id="partial-subject-name">Classifica finale</div>
         <div class="my-score-big" id="partial-score">0</div>
         <div class="my-rank" id="partial-rank"></div>
-        <div class="partial-wait" id="partial-wait">Il master sceglie la prossima materia...</div>
-        <div class="dots" style="margin-top:1rem;justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="partial-wait" id="partial-wait">Guarda il podio sul televisore!</div>
       </div>
     </div>
   </div>
@@ -295,11 +262,8 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io({
-  reconnection: true,
-  reconnectionAttempts: Infinity,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 3000,
-  timeout: 10000,
+  reconnection: true, reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000, reconnectionDelayMax: 3000, timeout: 10000,
 });
 
 socket.on('reconnect', () => {
@@ -307,15 +271,9 @@ socket.on('reconnect', () => {
     socket.emit('join', { code: enteredCode, name: playerName, charId: selectedChar });
   }
 });
+socket.on('connect',    () => document.querySelectorAll('.conn-indicator').forEach(el => el.style.background = '#10b981'));
+socket.on('disconnect', () => document.querySelectorAll('.conn-indicator').forEach(el => el.style.background = '#ef4444'));
 
-socket.on('connect', () => {
-  document.querySelectorAll('.conn-indicator').forEach(el => el.style.background = '#10b981');
-});
-socket.on('disconnect', () => {
-  document.querySelectorAll('.conn-indicator').forEach(el => el.style.background = '#ef4444');
-});
-
-// ── CHARACTERS ──
 const ALL_CHARS = [
   {id:'sofia', name:'Sofia', role:'La Dolce',       color:'#a78bfa'},
   {id:'nova',  name:'Nova',  role:'La Cyber',       color:'#22d3ee'},
@@ -333,65 +291,51 @@ const ALL_CHARS = [
   {id:'nerd',  name:'Nerd',  role:'Il Genio',       color:'#60a5fa'},
 ];
 
-// ── STATE ──
-let selectedChar = null;
-let playerName = '';
-let playerScore = 0;
-let answered = false;
-let qIndex = 0;
-let enteredCode = '';
-let takenChars = [];
-let currentSubjectLabel = '';
-let charIndex = 0;
+let selectedChar = null, playerName = '', playerScore = 0;
+let answered = false, qIndex = 0, enteredCode = '';
+let takenChars = [], charIndex = 0, joker5050Used = false;
 
-// ── SCREEN NAVIGATION ──
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-
-function setTopbarNames(name) {
-  ['topbar-name2','topbar-name3','topbar-name4'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = name;
+function setTopbarName(name) {
+  ['topbar-name2','topbar-name4'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = name;
   });
 }
 
-// ── SCREEN 1: CODICE ──
+// SCREEN 1
 function codeChanged() {
   const el = document.getElementById('code-input');
   el.value = el.value.replace(/\D/g,'');
   document.getElementById('btn-join').disabled = el.value.length < 4;
 }
-
 function goToName() {
   enteredCode = document.getElementById('code-input').value;
   showScreen('sc-name');
   setTimeout(() => document.getElementById('ph-name').focus(), 300);
 }
 
-// ── SCREEN 2: NOME ──
+// SCREEN 2
 function nameChanged() {
   const name = document.getElementById('ph-name').value.trim();
   document.getElementById('btn-name').disabled = name.length < 1;
 }
-
 function goToChar() {
   playerName = document.getElementById('ph-name').value.trim();
-  buildCarousel();
-  showScreen('sc-char');
+  buildCarousel(); showScreen('sc-char');
 }
 
-// ── SCREEN 3: CAROUSEL PERSONAGGIO ──
+// SCREEN 3: CAROUSEL
 function buildCarousel() {
   const track = document.getElementById('char-track');
   const dots  = document.getElementById('char-dots');
-
   track.innerHTML = ALL_CHARS.map((c, i) => {
     const unavail = takenChars.includes(c.id);
-    const isSelected = selectedChar === c.id;
+    const isSel   = selectedChar === c.id;
     return `<div class="char-slide">
-      <div class="char-img-wrap ${isSelected ? 'selected' : ''} ${unavail ? 'unavailable' : ''}" id="cw-${c.id}">
+      <div class="char-img-wrap ${isSel ? 'selected' : ''} ${unavail ? 'unavailable' : ''}" id="cw-${c.id}">
         <img src="/chars/${c.id}.png" alt="${c.name}">
       </div>
       <div class="char-name-big">${c.name}</div>
@@ -399,125 +343,72 @@ function buildCarousel() {
       ${unavail ? '<div class="char-taken-tag">Già scelto</div>' : ''}
     </div>`;
   }).join('');
-
   dots.innerHTML = ALL_CHARS.map((_, i) =>
     `<div class="char-dot ${i === charIndex ? 'active' : ''}" onclick="goToChar_slide(${i})"></div>`
   ).join('');
-
   updateCarouselPosition(false);
   setupCarouselTouch();
 }
-
 function updateCarouselPosition(animate = true) {
   const track = document.getElementById('char-track');
-  if (!animate) track.style.transition = 'none';
-  else track.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+  track.style.transition = animate ? 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none';
   track.style.transform = `translateX(-${charIndex * 100}%)`;
-
-  // Update dots
-  document.querySelectorAll('.char-dot').forEach((d, i) => {
-    d.classList.toggle('active', i === charIndex);
-  });
-
-  // Auto-select if not taken
+  document.querySelectorAll('.char-dot').forEach((d, i) => d.classList.toggle('active', i === charIndex));
   const c = ALL_CHARS[charIndex];
-  if (!takenChars.includes(c.id)) {
-    selectCarouselChar(c.id);
-  }
+  if (!takenChars.includes(c.id)) selectCarouselChar(c.id);
 }
-
-function goToChar_slide(i) {
-  charIndex = i;
-  updateCarouselPosition();
-}
-
-function charPrev() {
-  charIndex = (charIndex - 1 + ALL_CHARS.length) % ALL_CHARS.length;
-  updateCarouselPosition();
-}
-
-function charNext() {
-  charIndex = (charIndex + 1) % ALL_CHARS.length;
-  updateCarouselPosition();
-}
-
+function goToChar_slide(i) { charIndex = i; updateCarouselPosition(); }
+function charPrev() { charIndex = (charIndex - 1 + ALL_CHARS.length) % ALL_CHARS.length; updateCarouselPosition(); }
+function charNext() { charIndex = (charIndex + 1) % ALL_CHARS.length; updateCarouselPosition(); }
 function selectCarouselChar(id) {
   if (takenChars.includes(id)) return;
   selectedChar = id;
-  // Update visual
   document.querySelectorAll('.char-img-wrap').forEach(el => el.classList.remove('selected'));
   const wrap = document.getElementById('cw-' + id);
   if (wrap) wrap.classList.add('selected');
   document.getElementById('btn-confirm').disabled = false;
 }
-
-// Touch/swipe on carousel
 function setupCarouselTouch() {
   const carousel = document.getElementById('char-carousel');
-  let startX = 0, isDragging = false;
-
-  carousel.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX;
-    isDragging = true;
-  }, { passive: true });
-
+  let startX = 0;
+  carousel.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
   carousel.addEventListener('touchend', e => {
-    if (!isDragging) return;
-    isDragging = false;
     const dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) > 50) {
-      if (dx < 0) charNext();
-      else charPrev();
-    }
+    if (Math.abs(dx) > 50) { if (dx < 0) charNext(); else charPrev(); }
   }, { passive: true });
 }
-
 function doConfirm() {
   if (!selectedChar) return;
-  setTopbarNames(playerName);
+  setTopbarName(playerName);
   socket.emit('join', { code: enteredCode, name: playerName, charId: selectedChar });
 }
 
-// ── SOCKET EVENTS ──
+// SOCKET
 socket.on('join-error', ({ msg }) => {
   const pill = document.getElementById('error-pill');
-  pill.textContent = msg;
-  pill.classList.add('show');
+  pill.textContent = msg; pill.classList.add('show');
   showScreen('sc-join');
   setTimeout(() => pill.classList.remove('show'), 3000);
 });
-
 socket.on('joined', ({ name, char }) => {
-  const charInfo = ALL_CHARS.find(c => c.id === char.id);
-  const img = document.getElementById('wait-avatar-img');
-  img.src = '/chars/' + char.id + '.png';
+  document.getElementById('wait-avatar-img').src = '/chars/' + char.id + '.png';
   document.getElementById('wait-name').textContent = name;
+  const charInfo = ALL_CHARS.find(c => c.id === char.id);
   document.getElementById('wait-role').textContent = charInfo ? charInfo.role : '';
   showScreen('sc-wait');
 });
-
 socket.on('players-update', ({ players }) => {
   takenChars = players.map(p => p.char.id);
-  // Rebuild carousel if visible
-  const charScreen = document.getElementById('sc-char');
-  if (charScreen.classList.contains('active')) buildCarousel();
+  if (document.getElementById('sc-char').classList.contains('active')) buildCarousel();
 });
 
-socket.on('choose-subject', () => {
-  showScreen('sc-wait-subject');
-});
+// Il gioco inizia direttamente senza scegliere la categoria
+socket.on('game-starting', () => { /* splash mostrato sulla TV */ });
 
-socket.on('subject-selected', ({ subject, emoji }) => {
-  currentSubjectLabel = emoji + ' ' + subject;
-  document.getElementById('game-subject-badge').textContent = currentSubjectLabel;
-  document.getElementById('partial-subject-name').textContent = emoji + ' ' + subject;
-});
-
-// ── GAME ──
+// GAME
 let touchStartX = 0, touchStartY = 0;
 document.addEventListener('touchstart', e => {
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
+  touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
 }, { passive: true });
 document.addEventListener('touchend', e => {
   if (answered) return;
@@ -541,19 +432,35 @@ function doAnswer(idx, qi) {
   socket.emit('answer', { index: qi, answerIndex: idx });
 }
 
+function useJoker5050() {
+  if (joker5050Used || answered) return;
+  joker5050Used = true;
+  document.getElementById('joker-5050').classList.add('used');
+  socket.emit('joker-5050', { qIndex });
+}
+
+socket.on('joker-5050-result', ({ removeIndices }) => {
+  const dirs = ['up','down','left','right'];
+  removeIndices.forEach(i => {
+    const el = document.getElementById('sw-'+i);
+    if (el) { el.style.opacity = '0.15'; el.style.pointerEvents = 'none'; }
+  });
+});
+
 socket.on('question', ({ index, total, subject, emoji, q, yt, opts }) => {
-  answered = false;
+  answered = false; joker5050Used = false;
   qIndex = index;
-  currentSubjectLabel = emoji + ' ' + subject;
-  document.getElementById('game-subject-badge').textContent = currentSubjectLabel;
+  document.getElementById('game-subject-badge').textContent = emoji + ' ' + subject;
   document.getElementById('result-banner').style.display = 'none';
+  document.getElementById('joker-5050').disabled = false;
+  document.getElementById('joker-5050').classList.remove('used');
 
   ['sw-0','sw-1','sw-2','sw-3'].forEach((id, i) => {
     const el = document.getElementById(id);
     const dirs = ['up','down','left','right'];
     el.className = 'swipe-arrow ' + dirs[i];
-    el.style.opacity = '';
-    el.style.pointerEvents = '';
+    el.style.opacity = ''; el.style.pointerEvents = '';
+    document.getElementById('sw-label-'+i).textContent = opts[i] ? opts[i].substring(0,18) : '';
   });
   document.getElementById('swipe-area').style.pointerEvents = '';
 
@@ -567,15 +474,11 @@ socket.on('question', ({ index, total, subject, emoji, q, yt, opts }) => {
     document.getElementById('swipe-emoji').textContent = emoji || '🎯';
   }
   document.getElementById('swipe-hint').textContent = 'Scorri per rispondere!';
-  document.getElementById('progress-dots-sm').innerHTML =
-    Array.from({length: total}, (_, i) =>
-      `<div class="pdot-sm ${i < index ? 'done' : i === index ? 'current' : ''}"></div>`
-    ).join('');
-
+  document.getElementById('progress-dots-sm').innerHTML = Array.from({length: total}, (_, i) =>
+    `<div class="pdot-sm ${i < index ? 'done' : i === index ? 'current' : ''}"></div>`
+  ).join('');
   showScreen('sc-game');
 });
-
-
 
 socket.on('answer-result', ({ correct, pts, bonus, score }) => {
   playerScore = score;
@@ -596,33 +499,33 @@ socket.on('reveal', ({ correctIndex }) => {
   }
 });
 
-socket.on('round-end', ({ players, roundNumber, maxRounds, isLastRound }) => {
+socket.on('round-end', ({ players, isLastRound }) => {
   const me   = players.find(p => p.name === playerName);
-  const rank = players.indexOf(me) + 1;
+  const rank = me ? players.indexOf(me) + 1 : players.length;
   const medals = ['🥇','🥈','🥉'];
   document.getElementById('partial-score').textContent = me ? me.score : playerScore;
   document.getElementById('partial-rank').textContent = (rank <= 3 ? medals[rank-1] + ' ' : '') + rank + '° posto';
-  document.getElementById('partial-subject-name').textContent = maxRounds > 1 ? 'Round ' + roundNumber + ' di ' + maxRounds : '';
-  document.getElementById('partial-title').textContent = isLastRound ? 'Ultima materia! 🏆' : 'Round completato! 🎉';
-  document.getElementById('partial-wait').textContent = isLastRound ? 'Attendi il podio finale...' : 'Il master sceglie la prossima materia...';
+  document.getElementById('partial-title').textContent = '🏆 Partita finita!';
+  document.getElementById('partial-subject-name').textContent = 'Punteggio finale';
+  document.getElementById('partial-wait').textContent = 'Guarda il podio sul televisore!';
   showScreen('sc-partial');
 });
 
 socket.on('podium', ({ players }) => {
   const me   = players.find(p => p.name === playerName);
-  const rank = players.indexOf(me) + 1;
+  const rank = me ? players.indexOf(me) + 1 : players.length;
   const medals = ['🥇','🥈','🥉'];
   document.getElementById('partial-score').textContent = me ? me.score : playerScore;
   document.getElementById('partial-rank').textContent = (rank <= 3 ? medals[rank-1] + ' ' : '') + rank + '° posto finale!';
   document.getElementById('partial-subject-name').textContent = '🏆 Classifica finale';
   document.getElementById('partial-title').textContent = 'Partita finita!';
-  document.getElementById('partial-wait').textContent = '';
+  document.getElementById('partial-wait').textContent = 'Guarda il podio sul televisore!';
   showScreen('sc-partial');
 });
 
 socket.on('reset', () => {
-  playerScore = 0; selectedChar = null; answered = false; takenChars = []; charIndex = 0;
-  joker5050Used = false;
+  playerScore = 0; selectedChar = null; answered = false;
+  takenChars = []; charIndex = 0; joker5050Used = false;
   document.getElementById('code-input').value = '';
   document.getElementById('btn-join').disabled = true;
   showScreen('sc-join');
