@@ -156,6 +156,221 @@ const FAMOUS_ITALIANS = {
 // Cache for Wikipedia images
 const wikiImageCache = {};
 
+// ── LUOGHI FAMOSI ─────────────────────────────────────────────────────────────
+const FAMOUS_PLACES = [
+  { name: 'Colosseo', wiki: 'Colosseum', city: 'Roma, Italia' },
+  { name: 'Torre Eiffel', wiki: 'Eiffel_Tower', city: 'Parigi, Francia' },
+  { name: 'Sagrada Família', wiki: 'Sagrada_Família', city: 'Barcellona, Spagna' },
+  { name: 'Big Ben', wiki: 'Big_Ben', city: 'Londra, UK' },
+  { name: 'Colosseo di Roma', wiki: 'Colosseum', city: 'Roma, Italia' },
+  { name: 'Statue of Liberty', wiki: 'Statue_of_Liberty', city: 'New York, USA' },
+  { name: 'Machu Picchu', wiki: 'Machu_Picchu', city: 'Perù' },
+  { name: 'Taj Mahal', wiki: 'Taj_Mahal', city: 'Agra, India' },
+  { name: 'Piramidi di Giza', wiki: 'Egyptian_pyramids', city: 'Egitto' },
+  { name: 'Torre di Pisa', wiki: 'Leaning_Tower_of_Pisa', city: 'Pisa, Italia' },
+  { name: 'Colonna Traiana', wiki: 'Trajan%27s_Column', city: 'Roma, Italia' },
+  { name: 'Partenone', wiki: 'Parthenon', city: 'Atene, Grecia' },
+  { name: 'Angkor Wat', wiki: 'Angkor_Wat', city: 'Cambogia' },
+  { name: 'Cristo Redentore', wiki: 'Christ_the_Redeemer_(statue)', city: 'Rio, Brasile' },
+  { name: 'Colosseo di Pola', wiki: 'Pula_Arena', city: 'Pola, Croazia' },
+  { name: 'Burj Khalifa', wiki: 'Burj_Khalifa', city: 'Dubai, EAU' },
+  { name: 'Sydney Opera House', wiki: 'Sydney_Opera_House', city: 'Sydney, Australia' },
+  { name: 'Mont Saint-Michel', wiki: 'Mont_Saint-Michel', city: 'Normandia, Francia' },
+  { name: 'Stonehenge', wiki: 'Stonehenge', city: 'Wiltshire, UK' },
+  { name: 'Alhambra', wiki: 'Alhambra', city: 'Granada, Spagna' },
+  { name: 'Hagia Sophia', wiki: 'Hagia_Sophia', city: 'Istanbul, Turchia' },
+  { name: 'Palazzo Reale di Versailles', wiki: 'Palace_of_Versailles', city: 'Versailles, Francia' },
+  { name: 'Buckingham Palace', wiki: 'Buckingham_Palace', city: 'Londra, UK' },
+  { name: 'Acropoli di Atene', wiki: 'Acropolis_of_Athens', city: 'Atene, Grecia' },
+  { name: 'Duomo di Milano', wiki: 'Milan_Cathedral', city: 'Milano, Italia' },
+  { name: 'Basilica di San Pietro', wiki: 'St._Peter%27s_Basilica', city: 'Vaticano' },
+  { name: 'Canal Grande', wiki: 'Grand_Canal,_Venice', city: 'Venezia, Italia' },
+  { name: 'Ponte di Rialto', wiki: 'Rialto_Bridge', city: 'Venezia, Italia' },
+  { name: 'Fontana di Trevi', wiki: 'Trevi_Fountain', city: 'Roma, Italia' },
+  { name: 'Piazza San Marco', wiki: 'Piazza_San_Marco', city: 'Venezia, Italia' },
+  { name: 'Castel Sant'Angelo', wiki: 'Castel_Sant%27Angelo', city: 'Roma, Italia' },
+  { name: 'Pantheon', wiki: 'Pantheon,_Rome', city: 'Roma, Italia' },
+  { name: 'Foro Romano', wiki: 'Roman_Forum', city: 'Roma, Italia' },
+  { name: 'Cinque Terre', wiki: 'Cinque_Terre', city: 'Liguria, Italia' },
+  { name: 'Amalfi', wiki: 'Amalfi', city: 'Campania, Italia' },
+  { name: 'Positano', wiki: 'Positano', city: 'Campania, Italia' },
+  { name: 'Trulli di Alberobello', wiki: 'Alberobello', city: 'Puglia, Italia' },
+  { name: 'Piazza del Campo', wiki: 'Piazza_del_Campo', city: 'Siena, Italia' },
+  { name: 'Uffizi', wiki: 'Uffizi', city: 'Firenze, Italia' },
+  { name: 'Palazzo Ducale', wiki: 'Doge%27s_Palace', city: 'Venezia, Italia' },
+  { name: 'Petra', wiki: 'Petra,_Jordan', city: 'Giordania' },
+  { name: 'Chichen Itza', wiki: 'Chichen_Itza', city: 'Messico' },
+  { name: 'Colosseo di El Djem', wiki: 'El_Djem', city: 'Tunisia' },
+  { name: 'Mount Rushmore', wiki: 'Mount_Rushmore', city: 'USA' },
+  { name: 'Golden Gate Bridge', wiki: 'Golden_Gate_Bridge', city: 'San Francisco, USA' },
+  { name: 'Niagara Falls', wiki: 'Niagara_Falls', city: 'USA/Canada' },
+  { name: 'Grand Canyon', wiki: 'Grand_Canyon', city: 'Arizona, USA' },
+  { name: 'Great Wall of China', wiki: 'Great_Wall_of_China', city: 'Cina' },
+  { name: 'Forbidden City', wiki: 'Forbidden_City', city: 'Pechino, Cina' },
+  { name: 'Fuji', wiki: 'Mount_Fuji', city: 'Giappone' },
+];
+
+// ── FILM FAMOSI ───────────────────────────────────────────────────────────────
+const FAMOUS_FILMS = [
+  { name: 'Il Padrino', wiki: 'The_Godfather', year: 1972 },
+  { name: 'Titanic', wiki: 'Titanic_(1997_film)', year: 1997 },
+  { name: 'Star Wars', wiki: 'Star_Wars_(film)', year: 1977 },
+  { name: 'Jurassic Park', wiki: 'Jurassic_Park_(film)', year: 1993 },
+  { name: 'Il Re Leone', wiki: 'The_Lion_King', year: 1994 },
+  { name: 'Harry Potter e la pietra filosofale', wiki: 'Harry_Potter_and_the_Philosopher%27s_Stone_(film)', year: 2001 },
+  { name: 'Avatar', wiki: 'Avatar_(2009_film)', year: 2009 },
+  { name: 'Il Signore degli Anelli', wiki: 'The_Lord_of_the_Rings:_The_Fellowship_of_the_Ring', year: 2001 },
+  { name: 'Forrest Gump', wiki: 'Forrest_Gump', year: 1994 },
+  { name: 'Schindler's List', wiki: 'Schindler%27s_List', year: 1993 },
+  { name: 'Pulp Fiction', wiki: 'Pulp_Fiction', year: 1994 },
+  { name: 'The Dark Knight', wiki: 'The_Dark_Knight', year: 2008 },
+  { name: 'Matrix', wiki: 'The_Matrix', year: 1999 },
+  { name: 'Inception', wiki: 'Inception', year: 2010 },
+  { name: 'Interstellar', wiki: 'Interstellar_(film)', year: 2014 },
+  { name: 'La vita è bella', wiki: 'Life_Is_Beautiful', year: 1997 },
+  { name: 'Nuovo Cinema Paradiso', wiki: 'Cinema_Paradiso', year: 1988 },
+  { name: 'Amarcord', wiki: 'Amarcord', year: 1973 },
+  { name: 'Gladiatore', wiki: 'Gladiator_(2000_film)', year: 2000 },
+  { name: 'Braveheart', wiki: 'Braveheart', year: 1995 },
+  { name: 'Shrek', wiki: 'Shrek_(film)', year: 2001 },
+  { name: 'Toy Story', wiki: 'Toy_Story', year: 1995 },
+  { name: 'Up', wiki: 'Up_(2009_film)', year: 2009 },
+  { name: 'WALL-E', wiki: 'WALL-E', year: 2008 },
+  { name: 'Il silenzio degli innocenti', wiki: 'The_Silence_of_the_Lambs_(film)', year: 1991 },
+  { name: 'Scarface', wiki: 'Scarface_(1983_film)', year: 1983 },
+  { name: 'Alien', wiki: 'Alien_(film)', year: 1979 },
+  { name: 'Terminator', wiki: 'The_Terminator', year: 1984 },
+  { name: 'Shining', wiki: 'The_Shining_(film)', year: 1980 },
+  { name: 'Avengers: Endgame', wiki: 'Avengers:_Endgame', year: 2019 },
+  { name: 'Spider-Man', wiki: 'Spider-Man_(2002_film)', year: 2002 },
+  { name: 'Iron Man', wiki: 'Iron_Man_(film)', year: 2008 },
+  { name: 'Joker', wiki: 'Joker_(2019_film)', year: 2019 },
+  { name: 'Parasite', wiki: 'Parasite_(2019_film)', year: 2019 },
+  { name: 'Oppenheimer', wiki: 'Oppenheimer_(film)', year: 2023 },
+];
+
+// ── VERO O FALSO ──────────────────────────────────────────────────────────────
+const VERO_FALSO = [
+  { q: 'La muraglia cinese è visibile dallo spazio a occhio nudo.', a: false, explain: 'È un mito! È troppo stretta per essere vista dallo spazio.' },
+  { q: 'L'Italia ha vinto 4 Mondiali di calcio.', a: true, explain: '1934, 1938, 1982 e 2006.' },
+  { q: 'Il cuore di un polpo batte 3 volte.', a: true, explain: 'Ha 3 cuori: uno principale e due branchiali.' },
+  { q: 'Napoleone era alto meno di 1,60 m.', a: false, explain: 'Era alto circa 1,69 m, nella media per l'epoca.' },
+  { q: 'Il Monte Bianco è la montagna più alta d'Europa.', a: true, explain: 'Con i suoi 4.808 m è la più alta d'Europa occidentale.' },
+  { q: 'L'oro affonda nell'acqua.', a: true, explain: 'L'oro è molto denso, circa 19 volte più dell'acqua.' },
+  { q: 'Roma è stata fondata nel 753 a.C.', a: true, explain: 'Secondo la tradizione, da Romolo nel 753 a.C.' },
+  { q: 'Il Vaticano è il paese più piccolo del mondo.', a: true, explain: 'Con soli 0,44 km² è lo stato più piccolo al mondo.' },
+  { q: 'Il sangue delle aragoste è rosso.', a: false, explain: 'Il sangue delle aragoste è blu, per il rame al posto del ferro.' },
+  { q: 'L'Italia ha più siti UNESCO di qualsiasi altro paese.', a: true, explain: 'L'Italia è il paese con più siti UNESCO al mondo.' },
+  { q: 'Il Sole è una stella di tipo nana gialla.', a: true, explain: 'Il Sole è classificato come nana gialla di tipo G.' },
+  { q: 'Gli elefanti sono i soli mammiferi che non possono saltare.', a: true, explain: 'Il loro peso non lo consente.' },
+  { q: 'La torre di Pisa è inclinata verso est.', a: false, explain: 'È inclinata verso sud.' },
+  { q: 'Venezia affonda di circa 2mm all'anno.', a: true, explain: 'Il processo è causato dal peso delle costruzioni e dall'erosione.' },
+  { q: 'La pizza Margherita prende il nome da Margherita di Savoia.', a: true, explain: 'Fu creata nel 1889 in onore della regina.' },
+  { q: 'Il Colosseo poteva contenere fino a 80.000 spettatori.', a: true, explain: 'La capienza stimata è tra 50.000 e 80.000 persone.' },
+  { q: 'Dante Alighieri è nato a Firenze.', a: true, explain: 'Dante nacque a Firenze intorno al 1265.' },
+  { q: 'La Gioconda è dipinta su tela.', a: false, explain: 'È dipinta su tavola di legno di pioppo.' },
+  { q: 'L'Italia confina con la Slovenia.', a: true, explain: 'Sì, a nord-est.' },
+  { q: 'Il Vesuvio è ancora un vulcano attivo.', a: true, explain: 'Il Vesuvio è considerato uno dei vulcani più pericolosi al mondo.' },
+  { q: 'La Sardegna è più grande della Sicilia.', a: false, explain: 'La Sicilia è più grande con 25.711 km² contro i 24.090 km² della Sardegna.' },
+  { q: 'L'italiano deriva direttamente dal latino.', a: true, explain: 'L'italiano è una lingua romanza discendente dal latino volgare.' },
+  { q: 'Il Colosseo fu costruito dai romani in 10 anni.', a: true, explain: 'La costruzione durò dal 70 all'80 d.C.' },
+  { q: 'Michelangelo dipinse la Cappella Sistina in piedi.', a: false, explain: 'Dipinse sdraiato su un'impalcatura, con il collo piegato.' },
+  { q: 'Il caffè espresso è originario dell'Italia.', a: true, explain: 'L'espresso fu inventato a Torino nel 1884.' },
+  { q: 'La Ferrari è fondata a Maranello.', a: true, explain: 'Enzo Ferrari fondò la Ferrari a Maranello nel 1947.' },
+  { q: 'Il Po è il fiume più lungo d'Italia.', a: true, explain: 'Il Po misura 652 km.' },
+  { q: 'La Sardegna appartiene all'Italia da sempre.', a: false, explain: 'Fu ceduta all'Italia nel 1861 dopo l'Unificazione.' },
+  { q: 'L'Etna è il vulcano più alto d'Europa.', a: true, explain: 'Con i suoi 3.357 m è il più alto vulcano attivo d'Europa.' },
+  { q: 'Il carnevale di Venezia dura 10 giorni.', a: false, explain: 'Dura circa 2-3 settimane.' },
+  { q: 'Galileo Galilei è nato a Pisa.', a: true, explain: 'Galileo nacque a Pisa nel 1564.' },
+  { q: 'L'Italia ha vinto l'Eurovision Song Contest più volte della Francia.', a: false, explain: 'La Francia ne ha vinti 5, l'Italia 3.' },
+  { q: 'La Mole Antonelliana si trova a Milano.', a: false, explain: 'Si trova a Torino.' },
+  { q: 'Il Parmigiano Reggiano deve stagionare almeno 12 mesi.', a: true, explain: 'Il disciplinare prevede una stagionatura minima di 12 mesi.' },
+  { q: 'Roma ha più fontane di qualsiasi altra città al mondo.', a: true, explain: 'Roma ha oltre 2.000 fontane storiche.' },
+  { q: 'L'italiano è la lingua ufficiale della Svizzera.', a: true, explain: 'L'italiano è una delle 4 lingue ufficiali svizzere.' },
+  { q: 'Leonardo da Vinci era mancino.', a: true, explain: 'Leonardo scriveva con la mano sinistra da destra a sinistra.' },
+  { q: 'La pasta è stata inventata in Cina.', a: false, explain: 'Le origini della pasta sono italiane, anche se ci sono teorie sul legame con la Cina.' },
+  { q: 'Il gelato è stato inventato in Italia.', a: true, explain: 'Il gelato moderno ha origini fiorentine del XVI secolo.' },
+  { q: 'Venezia è costruita su 118 isole.', a: true, explain: 'Venezia è composta da 118 isolette collegate da ponti.' },
+  { q: 'Il tricolore italiano è stato adottato prima di quello francese.', a: false, explain: 'Il tricolore francese è del 1790, quello italiano del 1797.' },
+  { q: 'L'Arco di Trionfo di Parigi è più alto della Torre di Pisa.', a: true, explain: 'L'Arco è 50 m, la Torre di Pisa circa 56 m... falso! La Torre è più alta.' },
+  { q: 'La Basilica di San Pietro è la chiesa più grande del mondo.', a: true, explain: 'Con 15.160 m² è la più grande chiesa del mondo.' },
+  { q: 'Il Chianti è un vino prodotto in Toscana.', a: true, explain: 'Il Chianti è prodotto nella zona tra Firenze e Siena.' },
+  { q: 'L'alfabeto italiano ha 21 lettere.', a: true, explain: 'L'alfabeto italiano ha 21 lettere: mancano J, K, W, X, Y.' },
+  { q: 'La Scala di Milano è il teatro più grande al mondo.', a: false, explain: 'È uno dei più famosi ma non il più grande.' },
+  { q: 'Il Pantheon di Roma ha quasi 2000 anni.', a: true, explain: 'Fu costruito tra il 118 e il 125 d.C.' },
+  { q: 'La pizza napoletana è patrimonio UNESCO.', a: true, explain: 'La pizza napoletana è patrimonio immateriale UNESCO dal 2017.' },
+  { q: 'L'Italia è la terza economia dell'Unione Europea.', a: true, explain: 'Dopo Germania e Francia.' },
+  { q: 'Il Duomo di Milano ha più di 3500 statue.', a: true, explain: 'Ha circa 3.400 statue esterne e 700 interne.' },
+];
+
+async function generatePlaceQuestion(usedNames = new Set()) {
+  const pool = FAMOUS_PLACES.filter(p => !usedNames.has(p.name));
+  if (pool.length < 4) return null;
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  let correct = null, imgUrl = null;
+  for (const place of shuffled) {
+    imgUrl = await getWikiImage(place.wiki);
+    if (imgUrl) { correct = place; break; }
+  }
+  if (!correct) return null;
+  const wrong = FAMOUS_PLACES
+    .filter(p => p.name !== correct.name)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
+  const options = [correct, ...wrong].sort(() => Math.random() - 0.5);
+  const correctIndex = options.findIndex(p => p.name === correct.name);
+  const proxiedUrl = `/imgproxy?url=${encodeURIComponent(imgUrl)}`;
+  return {
+    type: 'image',
+    q: 'Che posto è questo?',
+    imageUrl: proxiedUrl,
+    opts: options.map(p => p.name),
+    a: correctIndex,
+  };
+}
+
+async function generateFilmQuestion(usedNames = new Set()) {
+  const pool = FAMOUS_FILMS.filter(f => !usedNames.has(f.name));
+  if (pool.length < 4) return null;
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  let correct = null, imgUrl = null;
+  for (const film of shuffled) {
+    imgUrl = await getWikiImage(film.wiki);
+    if (imgUrl) { correct = film; break; }
+  }
+  if (!correct) return null;
+  const wrong = FAMOUS_FILMS
+    .filter(f => f.name !== correct.name)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
+  const options = [correct, ...wrong].sort(() => Math.random() - 0.5);
+  const correctIndex = options.findIndex(f => f.name === correct.name);
+  const proxiedUrl = `/imgproxy?url=${encodeURIComponent(imgUrl)}`;
+  return {
+    type: 'image',
+    q: 'Che film è questo?',
+    imageUrl: proxiedUrl,
+    opts: options.map(f => f.name),
+    a: correctIndex,
+  };
+}
+
+function generateVeroFalsoQuestions(room) {
+  if (!room.usedQuestions['verofals']) room.usedQuestions['verofals'] = new Set();
+  const used = room.usedQuestions['verofals'];
+  let available = VERO_FALSO.map((q, i) => ({q, i})).filter(({i}) => !used.has(i));
+  if (available.length < 10) { used.clear(); available = VERO_FALSO.map((q, i) => ({q, i})); }
+  const picked = available.sort(() => Math.random() - 0.5).slice(0, 10);
+  picked.forEach(({i}) => used.add(i));
+  return picked.map(({q}) => ({
+    type: 'verofals',
+    q: q.q,
+    opts: ['✅ Vero', '❌ Falso'],
+    a: q.a ? 0 : 1,
+    explain: q.explain,
+  }));
+}
+
 async function getWikiImage(wikiTitle) {
   if (wikiImageCache[wikiTitle]) return wikiImageCache[wikiTitle];
   try {
@@ -230,6 +445,9 @@ const SUBJECTS = [
   { id: 'musica',     name: 'Musica',            emoji: '🎵' },
   { id: 'italia',     name: 'Italia',            emoji: '🇮🇹' },
   { id: 'foto',       name: 'Chi è?',            emoji: '📸' },
+  { id: 'luoghi',     name: 'Che posto è?',      emoji: '🗺️' },
+  { id: 'film',       name: 'Che film è?',       emoji: '🎬' },
+  { id: 'verofals',   name: 'Vero o Falso?',     emoji: '✅' },
 ];
 
 // ── DOMANDE ITALIA ─────────────────────────────────────────────────────────────
@@ -343,6 +561,9 @@ const TRIVIA_CATEGORIES = {
   musica:     12,  // Music
   italia:     null, // uses local Italian questions
   foto:       null, // uses Wikipedia image questions
+  luoghi:     null, // uses Wikipedia place images
+  film:       null, // uses TMDB movie posters
+  verofals:   null, // uses local true/false questions
 };
 
 // HTML entity decode
@@ -370,7 +591,7 @@ async function translateToItalian(text) {
 // Fetch questions from Open Trivia DB
 async function fetchOnlineQuestions(subjectId, difficulty = 'medium') {
   // Italia and Foto use local questions only
-  if (subjectId === 'italia' || subjectId === 'foto') return null;
+  if (['italia','foto','luoghi','film','verofals'].includes(subjectId)) return null;
   try {
     const catId = TRIVIA_CATEGORIES[subjectId] || 9;
     const diff = ['easy','medium','hard'].includes(difficulty) ? difficulty : 'medium';
@@ -1325,7 +1546,7 @@ function revealAnswer(room) {
   clearInterval(room.timerInterval);
   room.gameState = 'reveal';
   const q = room.roundQuestions[room.currentQ];
-  emitToRoom(room, 'reveal', { correctIndex: q.a, correctAnswer: q.opts[q.a], players: getPlayersList(room) });
+  emitToRoom(room, 'reveal', { correctIndex: q.a, correctAnswer: q.opts[q.a], explain: q.explain || null, players: getPlayersList(room) });
   setTimeout(() => {
     room.currentQ++;
     if (room.currentQ >= room.roundQuestions.length) endRound(room);
@@ -1349,6 +1570,8 @@ function sendQuestion(room) {
     yt:       q.yt || null,
     opts:     q.opts,
     imageUrl: q.imageUrl || null,
+    type:     q.type || 'normal',
+    explain:  q.explain || null,
     players:  getPlayersList(room),
   });
   startTimer(room);
@@ -1474,10 +1697,15 @@ io.on('connection', (socket) => {
     room.currentSubject = subjectId;
     room.currentQ       = 0;
     emitToRoom(room, 'subject-selected', { subject: subj.name, emoji: subj.emoji, subjectId });
-    if (subjectId === 'foto') {
-      // Generate 10 image questions
+    if (subjectId === 'verofals') {
+      room.roundQuestions = generateVeroFalsoQuestions(room);
+      room.gameState = 'question-pending';
+      setTimeout(() => sendQuestion(room), 2500);
+    } else if (['foto','luoghi','film'].includes(subjectId)) {
       const usedNames = new Set();
       const imageQs = [];
+      const genFn = subjectId === 'foto' ? generateImageQuestion :
+                    subjectId === 'luoghi' ? generatePlaceQuestion : generateFilmQuestion;
       const generateNext = async () => {
         if (imageQs.length >= 10) {
           room.roundQuestions = imageQs;
@@ -1485,7 +1713,7 @@ io.on('connection', (socket) => {
           setTimeout(() => sendQuestion(room), 2500);
           return;
         }
-        const q = await generateImageQuestion(usedNames);
+        const q = await genFn(usedNames);
         if (q) { imageQs.push(q); usedNames.add(q.opts[q.a]); }
         generateNext();
       };
@@ -1507,11 +1735,34 @@ io.on('connection', (socket) => {
     room.currentSubject = subj.id;
     room.currentQ       = 0;
     emitToRoom(room, 'subject-selected', { subject: subj.name, emoji: subj.emoji, subjectId: subj.id });
-    fetchOnlineQuestions(subj.id, room.difficulty).then(onlineQ => {
-      room.roundQuestions = onlineQ || pickQuestionsInRoom(room, QUESTIONS[subj.id], subj.id);
+    if (subj.id === 'verofals') {
+      room.roundQuestions = generateVeroFalsoQuestions(room);
       room.gameState = 'question-pending';
       setTimeout(() => sendQuestion(room), 2500);
-    });
+    } else if (['foto','luoghi','film'].includes(subj.id)) {
+      const usedNames = new Set();
+      const imageQs = [];
+      const genFn = subj.id === 'foto' ? generateImageQuestion :
+                    subj.id === 'luoghi' ? generatePlaceQuestion : generateFilmQuestion;
+      const generateNext = async () => {
+        if (imageQs.length >= 10) {
+          room.roundQuestions = imageQs;
+          room.gameState = 'question-pending';
+          setTimeout(() => sendQuestion(room), 2500);
+          return;
+        }
+        const q = await genFn(usedNames);
+        if (q) { imageQs.push(q); usedNames.add(q.opts[q.a]); }
+        generateNext();
+      };
+      generateNext();
+    } else {
+      fetchOnlineQuestions(subj.id, room.difficulty).then(onlineQ => {
+        room.roundQuestions = onlineQ || pickQuestionsInRoom(room, QUESTIONS[subj.id], subj.id);
+        room.gameState = 'question-pending';
+        setTimeout(() => sendQuestion(room), 2500);
+      });
+    }
   });
 
   socket.on('joker-5050', ({ qIndex }) => {

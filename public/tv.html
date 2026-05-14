@@ -162,6 +162,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
 .opt.correct .opt-arrow { opacity: 1; }
 .opt.wrong { background: rgba(255,255,255,0.25); color: rgba(255,255,255,0.5); }
 .scoreboard { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; margin-top: 8px; }
+.explain-text { display: none; background: rgba(255,255,255,0.15); border-radius: 12px; padding: 10px 18px; font-size: 15px; color: #fff; text-align: center; margin: 4px 2rem; flex-shrink: 0; font-style: italic; }
 .answer-counter { text-align: center; font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.85); margin-bottom: 4px; flex-shrink: 0; }
 .correct-names { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; min-height: 28px; flex-shrink: 0; }
 .correct-name-chip { background: rgba(16,185,129,0.25); border: 1px solid #10b981; border-radius: 99px; padding: 3px 14px; font-size: 13px; font-weight: 700; color: #fff; animation: chipPop 0.3s cubic-bezier(.34,1.56,.64,1); }
@@ -342,6 +343,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI
     </div>
     <div class="answer-counter" id="answer-counter"></div>
     <div class="correct-names" id="correct-names"></div>
+    <div class="explain-text" id="explain-text"></div>
     <div class="scoreboard" id="scoreboard"></div>
   </div>
 
@@ -503,6 +505,9 @@ function buildSubjectGrid(subjects) {
     musica:     'linear-gradient(135deg, #be185d, #f43f5e)',
     italia:     'linear-gradient(135deg, #16a34a, #dc2626)',
     foto:       'linear-gradient(135deg, #6366f1, #0ea5e9)',
+    luoghi:     'linear-gradient(135deg, #0891b2, #065f46)',
+    film:       'linear-gradient(135deg, #7c3aed, #db2777)',
+    verofals:   'linear-gradient(135deg, #15803d, #b91c1c)',
   };
 
   // Split rest into rows of 3
@@ -600,7 +605,7 @@ socket.on('subject-selected', ({ subject, emoji }) => {
   showScreen('sc-splash');
 });
 
-socket.on('question', ({ index, total, subject, emoji, q, yt, opts, imageUrl, players }) => {
+socket.on('question', ({ index, total, subject, emoji, q, yt, opts, imageUrl, type, explain, players }) => {
   startGameMusic();
   if (players && players.length) currentPlayers = players;
   timeLeft = 15;
@@ -619,6 +624,8 @@ socket.on('question', ({ index, total, subject, emoji, q, yt, opts, imageUrl, pl
   if (ac) ac.textContent = '';
   const cn = document.getElementById('correct-names');
   if (cn) cn.innerHTML = '';
+  const ex = document.getElementById('explain-text');
+  if (ex) { ex.textContent = ''; ex.style.display = 'none'; }
 
   const arrows  = ['↑','↓','←','→'];
   const positions = ['opt-top','opt-bottom','opt-left','opt-right'];
@@ -676,7 +683,13 @@ socket.on('timer', ({ timeLeft: tl }) => {
   if (at) at.textContent = tl+'s';
 });
 
-socket.on('reveal', ({ correctIndex, players }) => {
+socket.on('reveal', ({ correctIndex, correctAnswer, explain, players }) => {
+  // Show explain text if available
+  const explainEl = document.getElementById('explain-text');
+  if (explainEl) {
+    explainEl.textContent = explain || '';
+    explainEl.style.display = explain ? 'block' : 'none';
+  }
   stopGameMusic();
   document.getElementById('yt-container').innerHTML = '';
   document.getElementById('audio-player').classList.remove('active');
