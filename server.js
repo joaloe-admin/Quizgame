@@ -1317,7 +1317,8 @@ const CHARACTERS = [
 const rooms={}, socketRoom={};
 function createRoom() {
   const code=generateCode();
-  rooms[code]={ code, tvSocketId:null, players:{}, gameState:'lobby', currentSubject:'mix', currentQ:0, roundQuestions:[], timerInterval:null, timeLeft:15, roundNumber:0, maxRounds:1, correctAnswerCount:0, usedQuestions:{}, stats:{} };
+  rooms[code]={ code, tvSocketId:null, players:{}, gameState:'lobby', gameMode:'quiz', currentSubject:'mix', currentQ:0, roundQuestions:[], timerInterval:null, timeLeft:15, roundNumber:0, maxRounds:1, correctAnswerCount:0, usedQuestions:{}, stats:{},
+    talpaState:{ round:0, maxRounds:3, roles:{}, votes:{}, readyPlayers:new Set(), usedPairs:new Set(), eliminated:[], phase:'discuss', wordPair:[] } };
   return rooms[code];
 }
 function getRoom(code) { return rooms[code]; }
@@ -1409,6 +1410,104 @@ app.get('/qr',async(req,res)=>{
   try { const qr=await QRCode.toDataURL(`${proto}://${host}/phone`,{width:180,margin:1}); res.json({qr}); }
   catch(e){ res.status(500).json({error:e.message}); }
 });
+
+
+// ── TALPA HELPER FUNCTIONS ────────────────────────────────────────────────────
+function startTalpaRound(room) {
+  room.talpaState.round++;
+  room.talpaState.phase = 'discuss';
+  room.talpaState.readyPlayers = new Set();
+  room.talpaState.votes = {};
+
+  const players = Object.values(room.players).filter(p => !p.eliminated);
+  const n = players.length;
+  if (n < 3) { endTalpaGame(room); return; }
+
+  // Pesca coppia non usata
+  let available = TALPA_WORDS.map((_,i) => i).filter(i => !room.talpaState.usedPairs.has(i));
+  if (available.length === 0) { room.talpaState.usedPairs.clear(); available = TALPA_WORDS.map((_,i) => i); }
+  const pairIdx = available[Math.floor(Math.random() * available.length)];
+  room.talpaState.usedPairs.add(pairIdx);
+  const [wordCivili, wordTalpa] = TALPA_WORDS[pairIdx];
+  room.talpaState.wordPair = [wordCivili, wordTalpa];
+
+  // Assegna ruoli
+  const shuffled = [...players].sort(() => Math.random() - 0.5);
+  const roles = {};
+  shuffled.forEach((p, i) => {
+    if (i === 0)      roles[p.socketId] = { role:'talpa',   word:wordTalpa,  name:p.name };
+    else if (i === 1) roles[p.socketId] = { role:'mrwhite', word:'???',      name:p.name };
+    else              roles[p.socketId] = { role:'civile',  word:wordCivili, name:p.name };
+  });
+  room.talpaState.roles = roles;
+
+  // Manda la parola a ogni giocatore privatamente
+  Object.entries(roles).forEach(([sid, info]) => {
+    io.to(sid).emit('talpa-your-role', {
+      role: info.role,
+      word: info.word,
+      round: room.talpaState.round,
+      maxRounds: room.talpaState.maxRounds,
+    });
+  });
+
+  // TV: mostra schermata discussione (senza rivelare le parole)
+  emitToRoom(room, 'talpa-round-start', {
+    round: room.talpaState.round,
+    maxRounds: room.talpaState.maxRounds,
+    players: players.map(p => ({ name:p.name, char:p.char })),
+    totalPlayers: n,
+  });
+
+  console.log(`Talpa round ${room.talpaState.round}: civili="${wordCivili}" talpa="${wordTalpa}"`);
+}
+
+function endTalpaVote(room) {
+  const votes = room.talpaState.votes;
+  const count = {};
+  Object.values(votes).forEach(t => { count[t] = (count[t]||0)+1; });
+  let maxV = 0, eliminated = null;
+  Object.entries(count).forEach(([name, v]) => { if (v > maxV) { maxV=v; eliminated=name; } });
+
+  // Marca eliminato
+  const elimPlayer = Object.values(room.players).find(p => p.name === eliminated);
+  if (elimPlayer) elimPlayer.eliminated = true;
+  room.talpaState.eliminated.push(eliminated);
+
+  const activePlayers = Object.values(room.players).filter(p => !p.eliminated);
+  const isLastRound = room.talpaState.round >= room.talpaState.maxRounds || activePlayers.length < 3;
+
+  emitToRoom(room, 'talpa-vote-result', {
+    votes: count,
+    eliminated,
+    round: room.talpaState.round,
+    maxRounds: room.talpaState.maxRounds,
+    isLastRound,
+    activePlayers: activePlayers.map(p => ({ name:p.name, char:p.char })),
+  });
+
+  if (isLastRound) {
+    setTimeout(() => endTalpaGame(room), 4000);
+  }
+}
+
+function endTalpaGame(room) {
+  // Rivela i ruoli dell'ultimo round
+  const roles = room.talpaState.roles;
+  const talpaPlayer  = Object.values(roles).find(r => r.role === 'talpa');
+  const mrwhitePlayer = Object.values(roles).find(r => r.role === 'mrwhite');
+  const [wordCivili, wordTalpa] = room.talpaState.wordPair;
+
+  emitToRoom(room, 'talpa-game-end', {
+    talpaName:   talpaPlayer?.name  || '?',
+    mrwhiteName: mrwhitePlayer?.name || '?',
+    wordCivili,
+    wordTalpa,
+    eliminated: room.talpaState.eliminated,
+    allRoles: Object.values(roles).map(r => ({ name:r.name, role:r.role, word:r.word })),
+  });
+  room.gameState = 'talpa-end';
+}
 
 io.on('connection',(socket)=>{
   console.log('Connesso:',socket.id);
@@ -1570,6 +1669,82 @@ io.on('connection',(socket)=>{
     room.code=newCode; rooms[newCode]=room; delete rooms[oldCode];
     socketRoom[socket.id]=newCode; socket.leave(oldCode); socket.join(newCode);
     emitToRoom(room,'reset',{ code:newCode });
+  });
+
+
+  // ── TALPA: selezione modalità ─────────────────────────────────────────────
+  socket.on('select-mode', ({ mode }) => {
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    room.gameMode = mode; // 'quiz' | 'talpa'
+    emitToRoom(room, 'mode-selected', { mode });
+  });
+
+  // ── TALPA: configura rounds ───────────────────────────────────────────────
+  socket.on('talpa-start', ({ maxRounds }) => {
+    const room = getRoomBySocket(socket.id);
+    if (!room || Object.keys(room.players).length < 3) return;
+    room.gameMode = 'talpa';
+    room.gameState = 'talpa-playing';
+    room.talpaState = { round:0, maxRounds: maxRounds||3, roles:{}, votes:{}, readyPlayers:new Set(), usedPairs:new Set(), eliminated:[], phase:'discuss', wordPair:[] };
+    Object.values(room.players).forEach(p => { p.eliminated = false; p.score = 0; });
+    startTalpaRound(room);
+  });
+
+  // ── TALPA: giocatore pronto per votare ────────────────────────────────────
+  socket.on('talpa-ready', () => {
+    const room = getRoomBySocket(socket.id);
+    if (!room || room.gameMode !== 'talpa') return;
+    const player = room.players[socket.id];
+    if (!player || player.eliminated) return;
+    room.talpaState.readyPlayers.add(socket.id);
+    const activePlayers = Object.values(room.players).filter(p => !p.eliminated);
+    emitToRoom(room, 'talpa-ready-update', {
+      readyCount: room.talpaState.readyPlayers.size,
+      total: activePlayers.length,
+    });
+    // Tutti pronti → passa al voto
+    if (room.talpaState.readyPlayers.size >= activePlayers.length) {
+      room.talpaState.phase = 'vote';
+      emitToRoom(room, 'talpa-vote-start', {
+        players: activePlayers.map(p => ({ name: p.name, char: p.char })),
+      });
+    }
+  });
+
+  // ── TALPA: voto ───────────────────────────────────────────────────────────
+  socket.on('talpa-vote', ({ targetName }) => {
+    const room = getRoomBySocket(socket.id);
+    if (!room || room.gameMode !== 'talpa' || room.talpaState.phase !== 'vote') return;
+    const player = room.players[socket.id];
+    if (!player || player.eliminated) return;
+    room.talpaState.votes[player.name] = targetName;
+    const activePlayers = Object.values(room.players).filter(p => !p.eliminated);
+    const voteCount = Object.keys(room.talpaState.votes).length;
+    emitToRoom(room, 'talpa-vote-update', { voteCount, total: activePlayers.length });
+    // Tutti hanno votato → risultato
+    if (voteCount >= activePlayers.length) {
+      endTalpaVote(room);
+    }
+  });
+
+  // ── TALPA: prossimo round (dalla TV) ──────────────────────────────────────
+  socket.on('talpa-next-round', () => {
+    const room = getRoomBySocket(socket.id);
+    if (!room || room.gameMode !== 'talpa') return;
+    const activePlayers = Object.values(room.players).filter(p => !p.eliminated);
+    if (activePlayers.length < 3 || room.talpaState.round >= room.talpaState.maxRounds) {
+      endTalpaGame(room);
+    } else {
+      startTalpaRound(room);
+    }
+  });
+
+  // ── TALPA: fine gioco anticipata ──────────────────────────────────────────
+  socket.on('talpa-end-game', () => {
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    endTalpaGame(room);
   });
 
   socket.on('disconnect',()=>{
