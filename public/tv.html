@@ -356,8 +356,8 @@ function setAppBg(catId, doublePoints) {
   if (catId && CAT_BG[catId]) app.classList.add(CAT_BG[catId]);
 }
 
-const ALL_CHAR_IDS = ['sofia','nova','quinn','flora','rebel','sage','pixel','jay','leo','rico','finn','beat','mimo','nerd'];
-const CHAR_NAMES = {sofia:'Sofia',nova:'Nova',quinn:'Quinn',flora:'Flora',rebel:'Rebel',sage:'Sage',pixel:'Pixel',jay:'Jay',leo:'Leo',rico:'Rico',finn:'Finn',beat:'Beat',mimo:'Mimo',nerd:'Nerd'};
+const ALL_CHAR_IDS = ['sofia','nova','quinn','flora','rebel','sage','pixel','jay','leo','rico','zack','beat','mimo','nerd'];
+const CHAR_NAMES = {sofia:'Sofia',nova:'Nova',quinn:'Quinn',flora:'Flora',rebel:'Rebel',sage:'Sage',pixel:'Pixel',jay:'Jay',leo:'Creamy',rico:'Rico',zack:'Zack',beat:'Beat',mimo:'Mimo',nerd:'Nerd'};
 
 function buildCharBubbles() {
   document.getElementById('chars-bubbles').innerHTML = ALL_CHAR_IDS.map(id => {
@@ -641,16 +641,28 @@ socket.on('round-end', ({ players, isLastRound }) => {
 socket.on('podium', ({ players, stats }) => {
   showScreen('sc-podium');
   fireConfetti();
-  const medals=['🥇','🥈','🥉'];
-  const order = players.length>=3?[players[1],players[0],players[2]]:players;
-  const heights=[130,180,95];
+  // Ordine podio: 2° a sinistra, 1° al centro, 3° a destra
+  let order, heights, medals;
+  if (players.length >= 3) {
+    order   = [players[1], players[0], players[2]];
+    heights = [150, 210, 100];
+    medals  = ['🥈','🥇','🥉'];
+  } else if (players.length === 2) {
+    order   = [players[1], players[0]]; // 2° a sinistra, 1° a destra (più alto)
+    heights = [140, 210];
+    medals  = ['🥈','🥇'];
+  } else {
+    order   = players;
+    heights = [210];
+    medals  = ['🥇'];
+  }
   document.getElementById('podium-row').innerHTML = order.map((p,i)=>{
     const rank=players.indexOf(p);
     return `<div class="pod-col">
       ${rank===0?'<div style="font-size:28px;margin-bottom:4px">👑</div>':''}
       <div class="pod-avatar">${charSVG(p.char.id,72,72)}</div>
       <div class="pod-bar" style="height:${heights[i]}px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4)">
-        <span style="font-size:20px">${medals[rank]||''}</span>
+        <span style="font-size:20px">${medals[i]||''}</span>
       </div>
       <div class="pod-name">${p.name}</div>
       <div class="pod-pts">${p.score} pt</div>
