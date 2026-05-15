@@ -849,7 +849,13 @@ socket.on('reset', ({ code }) => {
   loadQR(code);
 });
 
-function startGame() { socket.emit('start-game'); }
+function startGame() { showScreen('sc-mode'); }
+function selectMode(mode) {
+  if (mode === 'quiz') { socket.emit('start-game'); }
+  else { showScreen('sc-talpa-config'); }
+}
+function startTalpa(rounds) { socket.emit('talpa-start', { maxRounds: rounds }); }
+function talpaNextRound()   { socket.emit('talpa-next-round'); }
 function endGame()   { socket.emit('end-game'); }
 function resetGame() { socket.emit('reset-game'); }
 
