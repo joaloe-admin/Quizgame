@@ -147,39 +147,23 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .my-rank { font-size: 22px; font-weight: 800; color: rgba(255,255,255,0.9); margin-bottom: 1.5rem; }
 .partial-wait { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.6; }
 
-/* ── TALPA PHONE ── */
-#sc-talpa-word { }
-.talpa-word-card { background: rgba(255,255,255,0.15); border-radius: 28px; padding: 2rem 1.5rem;
-                   width: 100%; max-width: 340px; text-align: center; border: 2px solid rgba(255,255,255,0.3);
-                   backdrop-filter: blur(12px); }
-.talpa-round-info  { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 700; margin-bottom: 1rem;
-                     text-transform: uppercase; letter-spacing: 1px; }
-.talpa-role-emoji  { font-size: 60px; display: block; margin-bottom: 0.8rem; }
-.talpa-role-label  { font-size: 15px; font-weight: 800; color: rgba(255,255,255,0.85); margin-bottom: 0.5rem; }
-.talpa-word-big    { font-size: 48px; font-weight: 900; color: #fff; margin: 0.8rem 0;
-                     text-shadow: 0 4px 20px rgba(0,0,0,0.3); line-height: 1.1; }
-.talpa-word-hint   { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.5; margin-bottom: 1.5rem; }
-.btn-talpa-ready   { width: 100%; padding: 18px; background: #10b981; color: #fff; border: none;
-                     border-radius: 99px; font-size: 17px; font-weight: 800; cursor: pointer; transition: all .15s; }
-.btn-talpa-ready:disabled { background: rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); }
-.btn-talpa-ready.voted   { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
-
-#sc-talpa-vote-phone { }
-.talpa-vote-title-ph { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 6px; text-align: center; }
-.talpa-vote-sub-ph   { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 1.5rem; text-align: center; }
-.talpa-vote-list     { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 340px; }
-.talpa-vote-btn      { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.12);
-                       border: 2px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 12px 16px;
-                       cursor: pointer; transition: all .15s; width: 100%; }
-.talpa-vote-btn:active { transform: scale(0.97); }
-.talpa-vote-btn.selected { background: rgba(239,68,68,0.3); border-color: #ef4444; }
-.talpa-vote-btn.disabled { opacity: 0.4; pointer-events: none; }
-.talpa-vote-btn .tvb-name { font-size: 16px; font-weight: 700; color: #fff; }
-
-#sc-talpa-wait-result { }
-.talpa-wait-card { background: rgba(255,255,255,0.12); border-radius: 24px; padding: 2rem 1.5rem;
-                   width: 100%; max-width: 340px; text-align: center; border: 1px solid rgba(255,255,255,0.2); }
-
+/* TALPA */
+.talpa-word-card { background:rgba(255,255,255,0.15);border-radius:28px;padding:2rem 1.5rem;width:100%;max-width:340px;text-align:center;border:2px solid rgba(255,255,255,0.3); }
+.talpa-round-info { font-size:13px;color:rgba(255,255,255,0.7);font-weight:700;margin-bottom:1rem;text-transform:uppercase;letter-spacing:1px; }
+.talpa-role-emoji { font-size:22px;font-weight:900;color:rgba(255,255,255,0.9);display:block;margin-bottom:0.5rem; }
+.talpa-role-label { font-size:15px;font-weight:800;color:rgba(255,255,255,0.85);margin-bottom:0.5rem; }
+.talpa-word-big { font-size:44px;font-weight:900;color:#fff;margin:0.8rem 0;line-height:1.1; }
+.talpa-word-hint { font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5;margin-bottom:1.5rem; }
+.btn-talpa-ready { width:100%;padding:18px;background:#10b981;color:#fff;border:none;border-radius:99px;font-size:17px;font-weight:800;cursor:pointer; }
+.btn-talpa-ready:disabled { background:rgba(255,255,255,0.2);color:rgba(255,255,255,0.5); }
+.talpa-vote-title-ph { font-size:26px;font-weight:900;color:#fff;margin-bottom:6px;text-align:center; }
+.talpa-vote-sub-ph { font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:1.5rem;text-align:center; }
+.talpa-vote-list { display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px; }
+.talpa-vote-btn { display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.25);border-radius:20px;padding:12px 16px;cursor:pointer;width:100%; }
+.talpa-vote-btn.selected { background:rgba(239,68,68,0.3);border-color:#ef4444; }
+.talpa-vote-btn.disabled { opacity:0.4;pointer-events:none; }
+.tvb-name { font-size:16px;font-weight:700;color:#fff; }
+.talpa-wait-card { background:rgba(255,255,255,0.12);border-radius:24px;padding:2rem 1.5rem;width:100%;max-width:340px;text-align:center; }
 </style>
 </head>
 <body>
@@ -328,22 +312,20 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
     </div>
   </div>
 
-  <!-- TALPA: LA MIA PAROLA -->
+  <!-- TALPA: PAROLA -->
   <div class="screen" id="sc-talpa-word">
     <div class="topbar">
-      <div class="topbar-logo"><img src="/img/logo.png" alt="JSupport" style="height:28px;object-fit:contain;filter:brightness(0) invert(1);"> <div class="conn-indicator"></div></div>
+      <div class="topbar-logo"><img src="/img/logo.png" alt="JSupport" style="height:28px;object-fit:contain;filter:brightness(0) invert(1);"></div>
       <div class="topbar-name" id="topbar-name-tw"></div>
     </div>
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem">
       <div class="talpa-word-card">
         <div class="talpa-round-info" id="tw-round-info">Round 1 di 3</div>
-        <span class="talpa-role-emoji" id="tw-emoji">🎯</span>
-        <div class="talpa-role-label" id="tw-role-label">La tua parola è:</div>
-        <div class="talpa-word-big" id="tw-word">—</div>
-        <div class="talpa-word-hint" id="tw-hint">Ricordatela bene — non rivelare agli altri!</div>
-        <button class="btn-talpa-ready" id="btn-talpa-ready" onclick="talpaReady()">
-          ✅ Pronto a votare!
-        </button>
+        <span class="talpa-role-emoji" id="tw-emoji">Civile</span>
+        <div class="talpa-role-label" id="tw-role-label">La tua parola e:</div>
+        <div class="talpa-word-big" id="tw-word">...</div>
+        <div class="talpa-word-hint" id="tw-hint">Ricordatela bene!</div>
+        <button class="btn-talpa-ready" id="btn-talpa-ready" onclick="talpaReady()">Pronto a votare!</button>
       </div>
     </div>
   </div>
@@ -351,22 +333,21 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
   <!-- TALPA: VOTA -->
   <div class="screen" id="sc-talpa-vote-phone">
     <div class="topbar">
-      <div class="topbar-logo"><img src="/img/logo.png" alt="JSupport" style="height:28px;object-fit:contain;filter:brightness(0) invert(1);"> <div class="conn-indicator"></div></div>
+      <div class="topbar-logo"><img src="/img/logo.png" alt="JSupport" style="height:28px;object-fit:contain;filter:brightness(0) invert(1);"></div>
     </div>
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem">
-      <div class="talpa-vote-title-ph">🗳️ Chi è la Talpa?</div>
+      <div class="talpa-vote-title-ph">Chi e la Talpa?</div>
       <div class="talpa-vote-sub-ph">Non puoi votare te stesso</div>
       <div class="talpa-vote-list" id="talpa-vote-list"></div>
     </div>
   </div>
 
-  <!-- TALPA: ATTENDI RISULTATO -->
+  <!-- TALPA: ATTENDI -->
   <div class="screen" id="sc-talpa-wait-result">
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem">
       <div class="talpa-wait-card">
-        <div style="font-size:40px;margin-bottom:1rem">⏳</div>
-        <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:8px">Voto inviato!</div>
-        <div style="font-size:14px;color:rgba(255,255,255,0.7)">Aspetta il risultato sul TV...</div>
+        <div style="font-size:40px;margin-bottom:1rem">Voto inviato!</div>
+        <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:8px">Aspetta il risultato sul TV...</div>
         <div class="dots" style="margin-top:1.5rem"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
       </div>
     </div>
@@ -407,9 +388,9 @@ const ALL_CHARS = [
   {id:'sage',  name:'Sage',  role:'La Studiosa',    color:'#92400e'},
   {id:'pixel', name:'Pixel', role:'La Gamer',       color:'#10b981'},
   {id:'jay',   name:'Jay',   role:'Lo Sportivo',    color:'#3b82f6'},
-  {id:'leo',   name:'Creamy',role:"L'Avventuriero", color:'#f97316'},
+  {id:'leo',   name:'Leo',   role:"L'Avventuriero", color:'#f97316'},
   {id:'rico',  name:'Rico',  role:'Il Cool',        color:'#6366f1'},
-  {id:'zack',  name:'Zack',  role:'Il Ribelle',     color:'#84cc16'},
+  {id:'finn',  name:'Finn',  role:'Il Casual',      color:'#84cc16'},
   {id:'beat',  name:'Beat',  role:'Il DJ',          color:'#eab308'},
   {id:'mimo',  name:'Mimo',  role:'Il Simpatico',   color:'#06b6d4'},
   {id:'nerd',  name:'Nerd',  role:'Il Genio',       color:'#60a5fa'},
@@ -753,6 +734,82 @@ socket.on('timer-frozen', () => {
 socket.on('timer-resumed', () => {
   const fb = document.getElementById('freeze-banner');
   if (fb) fb.style.display = 'none';
+});
+
+
+// TALPA
+let talpaVoted = false;
+
+function talpaReady() {
+  const btn = document.getElementById('btn-talpa-ready');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.textContent = 'Aspetta gli altri...';
+  socket.emit('talpa-ready');
+}
+
+function castTalpaVote(targetName, btn) {
+  if (talpaVoted) return;
+  talpaVoted = true;
+  document.querySelectorAll('.talpa-vote-btn').forEach(function(b) { b.classList.add('disabled'); });
+  btn.classList.add('selected');
+  btn.classList.remove('disabled');
+  socket.emit('talpa-vote', { targetName: targetName });
+  setTimeout(function() { showScreen('sc-talpa-wait-result'); }, 600);
+}
+
+socket.on('talpa-your-role', function(data) {
+  talpaVoted = false;
+  var btn = document.getElementById('btn-talpa-ready');
+  if (btn) { btn.disabled = false; btn.textContent = 'Pronto a votare!'; }
+  var roundEl = document.getElementById('tw-round-info');
+  var emojiEl = document.getElementById('tw-emoji');
+  var labelEl = document.getElementById('tw-role-label');
+  var wordEl  = document.getElementById('tw-word');
+  var hintEl  = document.getElementById('tw-hint');
+  if (roundEl) roundEl.textContent = 'Round ' + data.round + ' di ' + data.maxRounds;
+  if (data.role === 'talpa') {
+    if (emojiEl) emojiEl.textContent = 'SEI LA TALPA!';
+    if (labelEl) labelEl.textContent = 'La tua parola e:';
+    if (wordEl)  { wordEl.textContent = data.word; wordEl.style.color = '#fca5a5'; }
+    if (hintEl)  hintEl.textContent = 'Bluffa! Gli altri hanno una parola simile.';
+    document.getElementById('app').style.background = 'linear-gradient(160deg,#7f1d1d,#dc2626,#4c1d95)';
+  } else if (data.role === 'mrwhite') {
+    if (emojiEl) emojiEl.textContent = 'MR. WHITE';
+    if (labelEl) labelEl.textContent = 'Non hai una parola!';
+    if (wordEl)  { wordEl.textContent = '???'; wordEl.style.color = '#fde68a'; }
+    if (hintEl)  hintEl.textContent = 'Ascolta gli altri e bluffa!';
+    document.getElementById('app').style.background = 'linear-gradient(160deg,#78350f,#d97706,#4c1d95)';
+  } else {
+    if (emojiEl) emojiEl.textContent = 'SEI UN CIVILE';
+    if (labelEl) labelEl.textContent = 'La tua parola e:';
+    if (wordEl)  { wordEl.textContent = data.word; wordEl.style.color = '#fff'; }
+    if (hintEl)  hintEl.textContent = 'Trova la Talpa! Ha una parola simile alla tua.';
+    document.getElementById('app').style.background = 'linear-gradient(160deg,#064e3b,#10b981,#4c1d95)';
+  }
+  showScreen('sc-talpa-word');
+});
+
+socket.on('talpa-vote-start', function(data) {
+  var list = document.getElementById('talpa-vote-list');
+  if (list) {
+    list.innerHTML = data.players
+      .filter(function(p) { return p.name !== playerName; })
+      .map(function(p) {
+        return '<button class="talpa-vote-btn" onclick="castTalpaVote(\'' + p.name + '\', this)">'
+          + '<img src="/chars/' + p.char.id + '.png" style="width:44px;height:48px;object-fit:contain;">'
+          + '<span class="tvb-name">' + p.name + '</span></button>';
+      }).join('');
+  }
+  showScreen('sc-talpa-vote-phone');
+});
+
+socket.on('talpa-ready-update', function() {});
+socket.on('talpa-vote-result', function() {});
+socket.on('talpa-round-start', function() { talpaVoted = false; });
+socket.on('talpa-game-end', function() {
+  document.getElementById('app').style.background = '';
+  showScreen('sc-wait');
 });
 
 socket.on("reset", () => {
