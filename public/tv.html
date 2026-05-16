@@ -852,20 +852,24 @@ socket.on('reset', ({ code }) => {
 function startGame() { showScreen('sc-mode'); }
 function selectMode(mode) {
   if (mode === 'quiz') { socket.emit('start-game'); }
-  else { showScreen('sc-talpa-config'); }
+  else {
+    const el = document.getElementById('talpa-player-count');
+    if (el) el.textContent = '👥 Giocatori connessi: ' + currentPlayers.length + (currentPlayers.length < 3 ? ' (minimo 3)' : ' ✅');
+    showScreen('sc-talpa-config');
+  }
 }
 function startTalpa(rounds) {
+  // Rimuovi eventuali errori precedenti
+  const prevErr = document.getElementById('talpa-min-err');
+  if (prevErr) prevErr.remove();
+  // Controlla lato client come prima difesa
   if (currentPlayers.length < 3) {
-    const sub = document.querySelector('#sc-talpa-config [style]') || document.querySelector('#sc-talpa-config .mode-sub');
-    // Show error inline
-    let err = document.getElementById('talpa-min-err');
-    if (!err) {
-      err = document.createElement('div');
-      err.id = 'talpa-min-err';
-      err.style.cssText = 'margin-top:1rem;background:rgba(239,68,68,0.25);border:2px solid #ef4444;border-radius:14px;padding:12px 24px;color:#fca5a5;font-weight:700;font-size:15px;text-align:center;';
-      document.querySelector('#sc-talpa-config > div').appendChild(err);
-    }
-    err.textContent = 'Servono almeno 3 giocatori per Trova la Talpa! (' + currentPlayers.length + '/3 connessi)';
+    const err = document.createElement('div');
+    err.id = 'talpa-min-err';
+    err.style.cssText = 'margin-top:1rem;background:rgba(239,68,68,0.25);border:2px solid #ef4444;border-radius:14px;padding:12px 24px;color:#fca5a5;font-weight:700;font-size:15px;text-align:center;';
+    err.textContent = 'Servono almeno 3 giocatori! (' + currentPlayers.length + ' connessi)';
+    const cfg = document.querySelector('#sc-talpa-config > div');
+    if (cfg) cfg.appendChild(err);
     return;
   }
   socket.emit('talpa-start', { maxRounds: rounds });
@@ -957,6 +961,19 @@ socket.on('talpa-game-end', ({ talpaName, mrwhiteName, wordCivili, wordTalpa, el
     `La Talpa era ${talpaName} · Mr. White era ${mrwhiteName}`;
   stopAllMusic();
   showScreen('sc-talpa-end');
+});
+
+socket.on('talpa-error', ({ msg }) => {
+  let err = document.getElementById('talpa-min-err');
+  if (!err) {
+    err = document.createElement('div');
+    err.id = 'talpa-min-err';
+    err.style.cssText = 'margin-top:1rem;background:rgba(239,68,68,0.25);border:2px solid #ef4444;border-radius:14px;padding:12px 24px;color:#fca5a5;font-weight:700;font-size:15px;text-align:center;';
+    const cfg = document.querySelector('#sc-talpa-config > div');
+    if (cfg) cfg.appendChild(err);
+  }
+  err.textContent = msg;
+  showScreen('sc-talpa-config');
 });
 
 socket.on('connect', () => socket.emit('register-tv'));

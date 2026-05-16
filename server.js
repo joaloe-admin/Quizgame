@@ -1683,7 +1683,15 @@ io.on('connection',(socket)=>{
   // ── TALPA: configura rounds ───────────────────────────────────────────────
   socket.on('talpa-start', ({ maxRounds }) => {
     const room = getRoomBySocket(socket.id);
-    if (!room || Object.keys(room.players).length < 3) return;
+    const playerCount = room ? Object.keys(room.players).length : 0;
+    console.log('talpa-start ricevuto, room:', room?.code, 'players:', playerCount, 'gameState:', room?.gameState);
+    if (!room) { console.log('ERRORE: room non trovata per socket', socket.id); return; }
+    if (playerCount < 3) { 
+      console.log('ERRORE: troppo pochi giocatori:', playerCount);
+      socket.emit('talpa-error', { msg: 'Servono almeno 3 giocatori! Connessi: ' + playerCount });
+      return; 
+    }
+    // Reset gameState se era rimasto bloccato
     room.gameMode = 'talpa';
     room.gameState = 'talpa-playing';
     room.talpaState = { round:0, maxRounds: maxRounds||3, roles:{}, votes:{}, readyPlayers:new Set(), usedPairs:new Set(), eliminated:[], phase:'discuss', wordPair:[] };
