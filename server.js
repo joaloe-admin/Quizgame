@@ -1390,7 +1390,7 @@ const CHARACTERS = [
 const rooms={}, socketRoom={};
 function createRoom() {
   const code=generateCode();
-  rooms[code]={ code, tvSocketId:null, players:{}, gameState:'lobby', gameMode:'quiz', currentSubject:'mix', currentQ:0, roundQuestions:[], timerInterval:null, timeLeft:15, roundNumber:0, maxRounds:1, correctAnswerCount:0, usedQuestions:{}, stats:{},
+  rooms[code]={ code, tvSocketId:null, players:{}, gameState:'lobby', gameMode:'quiz', isPaused:false, pausedTimeLeft:0, currentSubject:'mix', currentQ:0, roundQuestions:[], timerInterval:null, timeLeft:15, roundNumber:0, maxRounds:1, correctAnswerCount:0, usedQuestions:{}, stats:{},
     talpaState:{ round:0, maxRounds:3, roles:{}, votes:{}, readyPlayers:new Set(), usedPairs:new Set(), eliminated:[], phase:'discuss', wordPair:[] } };
   return rooms[code];
 }
@@ -1735,7 +1735,7 @@ io.on('connection',(socket)=>{
   socket.on('reset-game',()=>{
     const room=getRoomBySocket(socket.id); if(!room) return;
     Object.keys(room.players).forEach(sid=>delete socketRoom[sid]);
-    room.players={}; room.gameState='lobby'; room.currentQ=0; room.currentSubject='mix';
+    room.players={}; room.gameState='lobby'; room.isPaused=false; room.currentQ=0; room.currentSubject='mix';
     room.roundNumber=0; room.maxRounds=1; room.correctAnswerCount=0; room.usedQuestions={}; room.stats={};
     clearInterval(room.timerInterval);
     const oldCode=room.code,newCode=generateCode();
@@ -1826,6 +1826,24 @@ io.on('connection',(socket)=>{
     const room = getRoomBySocket(socket.id);
     if (!room) return;
     endTalpaGame(room);
+  });
+
+
+  // ── PAUSA ─────────────────────────────────────────────────────────────────
+  socket.on('pause-game', () => {
+    const room = getRoomBySocket(socket.id);
+    if (!room || room.gameState !== 'question') return;
+    room.isPaused = true;
+    emitToRoom(room, 'game-paused', {});
+    console.log('Room', room.code, '- pausa');
+  });
+
+  socket.on('resume-game', () => {
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    room.isPaused = false;
+    emitToRoom(room, 'game-resumed', {});
+    console.log('Room', room.code, '- ripresa');
   });
 
   socket.on('disconnect',()=>{
