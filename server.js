@@ -1401,8 +1401,10 @@ function emitToRoom(room,ev,data) { io.to(room.code).emit(ev,data); }
 
 function startTimer(room) {
   room.timeLeft=15;
+  room.isPaused=false;
   clearInterval(room.timerInterval);
   room.timerInterval=setInterval(()=>{
+    if (room.isPaused) return; // fermo durante la pausa
     room.timeLeft--;
     emitToRoom(room,'timer',{ timeLeft:room.timeLeft });
     if(room.timeLeft<=0) { clearInterval(room.timerInterval); revealAnswer(room); }
