@@ -834,6 +834,7 @@ socket.on('question', ({ index, total, subject, emoji, q, yt, opts, imageUrl, ty
 });
 
 socket.on('timer', ({ timeLeft: tl }) => {
+  if (isPaused) return; // ignora tick del timer durante la pausa
   timeLeft = tl;
   const fill=document.getElementById('timer-bar-fill'), num=document.getElementById('timer-bar-num');
   const pct=(tl/15)*100;
@@ -1121,11 +1122,21 @@ function togglePause() {
     // Metti in pausa
     overlay.classList.add('active');
     document.body.classList.add('paused');
+    // Blocca animazione timer bar
+    const fill = document.getElementById('timer-bar-fill');
+    if (fill) { fill.style.transition = 'none'; }
+    const num = document.getElementById('timer-bar-num');
+    if (num) num.style.opacity = '0.4';
     socket.emit('pause-game');
   } else {
     // Riprendi
     overlay.classList.remove('active');
     document.body.classList.remove('paused');
+    // Riabilita animazione timer bar
+    const fill = document.getElementById('timer-bar-fill');
+    if (fill) { fill.style.transition = 'width 1s linear'; }
+    const num = document.getElementById('timer-bar-num');
+    if (num) num.style.opacity = '1';
     socket.emit('resume-game');
   }
 }
