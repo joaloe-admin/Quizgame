@@ -933,6 +933,29 @@ function selectTournamentGames(n) {
   });
 }
 
+
+// SCHERMATA REGOLE
+let rulesTimer = null;
+
+function showRules() {
+  clearInterval(rulesTimer);
+  document.getElementById('rules-countdown').textContent = '';
+  showScreen('sc-rules');
+  let secs = 15;
+  const el = document.getElementById('rules-countdown');
+  el.textContent = 'Il gioco parte automaticamente tra ' + secs + 's...';
+  rulesTimer = setInterval(function() {
+    secs--;
+    if (secs <= 0) { clearInterval(rulesTimer); startQuizNow(); }
+    else el.textContent = 'Il gioco parte automaticamente tra ' + secs + 's...';
+  }, 1000);
+}
+
+function startQuizNow() {
+  clearInterval(rulesTimer);
+  socket.emit('start-game');
+}
+
 function confirmTournament() {
   tournamentGames = selectedGames;
   currentGameNum = 0;
