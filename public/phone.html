@@ -192,27 +192,36 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 }
 .mp-title { font-size:22px;font-weight:900;color:#fff;margin-bottom:4px;text-align:center; }
 .mp-sub   { font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:1.5rem;text-align:center; }
-.mp-opts  { display:flex;flex-direction:column;gap:12px;width:100%;max-width:360px; }
+.mp-opts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%; max-width: 360px;
+}
 .mp-opt {
   background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.12));
   border: 2px solid rgba(99,102,241,0.4);
-  border-radius:20px; padding:16px 20px;
-  font-size:16px; font-weight:800; color:#fff;
-  cursor:pointer; text-align:left;
+  border-radius: 20px; padding: 14px 10px;
+  font-size: 13px; font-weight: 800; color: #fff;
+  cursor: pointer; text-align: center;
   transition: all .2s cubic-bezier(.34,1.56,.64,1);
   box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-  position:relative; overflow:hidden;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
-.mp-opt:active { transform:scale(0.96); }
+.mp-opt:active { transform:scale(0.94); }
+.mp-arrow {
+  font-size: 32px; line-height: 1;
+}
+.mp-opt-title { font-size: 13px; font-weight: 800; line-height: 1.3; }
+.mp-artist { font-size: 11px; font-weight: 500; opacity: 0.6; display:block; margin-top:2px; }
 .mp-opt.correct {
   background: linear-gradient(135deg,rgba(16,185,129,0.4),rgba(5,150,105,0.25));
-  border-color:#10b981;
+  border-color: #10b981;
   box-shadow: 0 0 25px rgba(16,185,129,0.5);
 }
-.mp-opt.wrong   { background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.3);opacity:0.45; }
+.mp-opt.wrong   { background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.3); opacity:0.45; }
 .mp-opt.disabled { pointer-events:none; }
-.mp-artist { font-size:12px;font-weight:500;opacity:0.6;display:block;margin-top:3px; }
-.mp-wait   { font-size:48px;margin-bottom:1rem; }
+.mp-wait { font-size:48px; margin-bottom:1rem; }
 
 
 @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
@@ -933,9 +942,13 @@ socket.on('music-question', function(data) {
   musicPhoneTimeLeft = 15;
   document.getElementById('mp-badge').textContent =
     'Domanda ' + (data.index + 1) + ' / ' + data.total;
+  const mpArrows = ['⬆️','⬇️','⬅️','➡️'];
   document.getElementById('mp-opts').innerHTML = data.opts.map((o, i) =>
     '<button class="mp-opt" onclick="sendMusicAnswer(' + i + ', this)">' +
-    o.title + '<span class="mp-artist">' + o.artist + '</span></button>'
+    '<span class="mp-arrow">' + mpArrows[i] + '</span>' +
+    '<span class="mp-opt-title">' + o.title + '</span>' +
+    '<span class="mp-artist">' + o.artist + '</span>' +
+    '</button>'
   ).join('');
   showScreen('sc-music-phone');
   // Countdown locale
