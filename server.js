@@ -1512,25 +1512,68 @@ function levenshtein(a,b) {
 setInterval(()=>{ Object.keys(rooms).forEach(code=>{ const r=rooms[code]; if(Object.keys(r.players).length===0&&!r.tvSocketId) delete rooms[code]; }); },1000*60*30);
 
 // ── PROXY MIDI ───────────────────────────────────────────────────────────────
+// ── MIDI PROXY con firma S3 ──────────────────────────────────────────────────
+const crypto = require('crypto');
+
+function signS3Request(method, bucket, key, accessKey, secretKey, region) {
+  const host = 'eu2.contabostorage.com';
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[:\-]|\.\d{3}/g, '').slice(0,15) + 'Z';
+  const dateStamp = amzDate.slice(0,8);
+  const canonicalUri = '/' + bucket + '/' + key;
+  const NL = '\n';
+  const canonicalHeaders = 'host:' + host + NL + 'x-amz-date:' + amzDate + NL;
+  const signedHeaders = 'host;x-amz-date';
+  const payloadHash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+  const canonicalRequest = [method,'',canonicalUri,'',canonicalHeaders,signedHeaders,payloadHash].join(NL);
+  const credentialScope = dateStamp + '/' + region + '/s3/aws4_request';
+  const stringToSign = 'AWS4-HMAC-SHA256' + NL + amzDate + NL + credentialScope + NL +
+    crypto.createHash('sha256').update(canonicalRequest).digest('hex');
+  const kDate    = crypto.createHmac('sha256', 'AWS4'+secretKey).update(dateStamp).digest();
+  const kRegion  = crypto.createHmac('sha256', kDate).update(region).digest();
+  const kService = crypto.createHmac('sha256', kRegion).update('s3').digest();
+  const kSigning = crypto.createHmac('sha256', kService).update('aws4_request').digest();
+  const signature = crypto.createHmac('sha256', kSigning).update(stringToSign).digest('hex');
+  const auth = 'AWS4-HMAC-SHA256 Credential=' + accessKey + '/' + credentialScope +
+    ', SignedHeaders=' + signedHeaders + ', Signature=' + signature;
+  return { authorization: auth, 'x-amz-date': amzDate };
+}
+
 app.get('/midi/*', (req, res) => {
-  // req.params[0] mantiene l'URL encoding originale
   const midiPath = req.params[0];
-  const url = 'https://eu2.contabostorage.com/storage/midi/' + midiPath;
-  console.log('MIDI proxy:', url);
-  https.get(url, (upstream) => {
+  const key = 'midi/' + midiPath;
+  const headers = signS3Request('GET', 'storage', key,
+    '007fc270449299fbae0b592feb85ad39',
+    '871768234f4016e3efd6ab9ca77cf186',
+    'eu2'
+  );
+  const options = {
+    hostname: 'eu2.contabostorage.com',
+    path: '/storage/midi/' + midiPath,
+    method: 'GET',
+    headers: {
+      'Host': 'eu2.contabostorage.com',
+      'x-amz-date': headers['x-amz-date'],
+      'Authorization': headers.authorization,
+    }
+  };
+  console.log('MIDI proxy:', midiPath);
+  const upstream_req = https.request(options, (upstream) => {
     if (upstream.statusCode !== 200) {
-      console.error('Contabo error:', upstream.statusCode, url);
+      console.error('Contabo error:', upstream.statusCode, midiPath);
       res.status(upstream.statusCode).send('MIDI not found: ' + upstream.statusCode);
       return;
     }
     res.setHeader('Content-Type', 'audio/midi');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
     upstream.pipe(res);
-  }).on('error', (e) => {
+  });
+  upstream_req.on('error', (e) => {
     console.error('MIDI proxy error:', e.message);
     res.status(500).send('MIDI error: ' + e.message);
   });
+  upstream_req.end();
 });
 
 app.get('/qr',async(req,res)=>{
