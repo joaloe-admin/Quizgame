@@ -1222,6 +1222,7 @@ function showMusicQuestion() {
   const q = musicQuestions[musicCurrentQ];
   musicAnswered = false;
   musicTimeLeft = 15;
+  window.musicAnsweredPlayers = new Set();
 
   // Aggiorna badge
   document.getElementById('mq-badge').textContent =
@@ -1352,18 +1353,16 @@ function revealMusicAnswer(q) {
 }
 
 function endMusicGame() {
-  // Mostra podio con punteggi musica
   const sorted = Object.entries(musicScore)
     .map(([name, score]) => {
       const player = currentPlayers.find(p => p.name === name);
-      return { name, score, char: player?.char };
+      return { name, score, char: player ? player.char : { id: 'nerd' } };
     })
     .sort((a,b) => b.score - a.score);
 
   socket.emit('music-end', { players: sorted });
-  showScreen('sc-podium');
-  // Usa il podio esistente del quiz
-  emitToTV_podium(sorted);
+  // Usa l'evento podium esistente per mostrare il podio
+  showPodium(sorted);
 }
 
 // Risposta musica dal telefono
@@ -1374,12 +1373,11 @@ socket.on('music-answer', ({ playerName, answerIndex, timeLeft }) => {
   if (correct) {
     const pts = 10 + timeLeft;
     musicScore[playerName] = (musicScore[playerName] || 0) + pts;
-    // Aggiorna score display sul TV tramite event
-    emitToRoom_musicScore(playerName, pts);
   }
-  // Se tutti hanno risposto
-  const answered = Object.keys(musicAnsweredMap || {}).length;
-  if (answered >= currentPlayers.length - 1) {
+  // Conta risposte ricevute
+  if (!window.musicAnsweredPlayers) window.musicAnsweredPlayers = new Set();
+  window.musicAnsweredPlayers.add(playerName);
+  if (window.musicAnsweredPlayers.size >= currentPlayers.length) {
     clearInterval(musicTimer);
     revealMusicAnswer(q);
   }
