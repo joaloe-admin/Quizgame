@@ -1270,67 +1270,107 @@ function showMusicQuestion() {
 }
 
 async function playMidi(url) {
-  // Ferma riproduzione precedente
-  if (midiPlayer) {
-    try { midiPlayer.stop(); } catch(e) {}
-    midiPlayer = null;
-  }
+  // ── Ferma tutto immediatamente ───────────────────────────────────────────
   clearInterval(midiProgressInterval);
+  if (window._midiTimeouts) {
+    window._midiTimeouts.forEach(clearTimeout);
+    window._midiTimeouts = [];
+  }
+  window._midiSession = (window._midiSession || 0) + 1;
+  const sessionId = window._midiSession;
+
+  if (window._globalSynth) {
+    try { window._globalSynth.releaseAll(); } catch(e) {}
+  }
 
   try {
-    // Carica MIDI
-    // Usa proxy Railway per evitare CORS
+    // ── Costruisci URL proxy ────────────────────────────────────────────────
     const rawPath = url.includes('contabostorage.com') ? url.split('/midi/')[1] : url;
-    // Encode ogni segmento separatamente per preservare gli slash
     const encodedPath = rawPath.split('/').map(s => encodeURIComponent(decodeURIComponent(s))).join('/');
     const proxyUrl = '/midi/' + encodedPath;
     console.log('Fetching MIDI:', proxyUrl);
+
     const resp = await fetch(proxyUrl);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const buf = await resp.arrayBuffer();
-    const { Midi } = await import('https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/+esm');
+    if (window._midiSession !== sessionId) return; // già cambiata canzone
+
     const midi = new Midi(buf);
-
     await Tone.start();
-    const synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: 'triangle' },
-      envelope: { attack: 0.02, decay: 0.1, sustain: 0.5, release: 0.8 },
-      volume: -6,
-    }).toDestination();
 
-    const now = Tone.now() + 0.5;
-    const totalDuration = midi.duration;
+    // ── Crea synth globale se non esiste ────────────────────────────────────
+    if (!window._globalSynth) {
+      window._globalSynth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'triangle' },
+        envelope: { attack: 0.05, decay: 0.2, sustain: 0.4, release: 0.8 },
+        volume: -8,
+      }).toDestination();
+    }
+    const synth = window._globalSynth;
+
+    // ── Trova traccia melodia ───────────────────────────────────────────────
+    function scoreTrack(track) {
+      if (!track.notes || track.notes.length < 5) return 0;
+      const vocal = track.notes.filter(n => n.midi >= 48 && n.midi <= 84);
+      const avgDur = vocal.reduce((s,n) => s + n.duration, 0) / (vocal.length || 1);
+      return vocal.length * avgDur;
+    }
+    const bestTrack = midi.tracks
+      .map(t => ({ t, s: scoreTrack(t) }))
+      .sort((a,b) => b.s - a.s)[0]?.t;
+    const track = bestTrack || midi.tracks[0];
+
+    // ── Scegli offset (parte con più note = ritornello) ─────────────────────
     let startOffset = 0;
-    // Inizia da un punto casuale (max 60% del brano)
-    if (totalDuration > 30) {
-      startOffset = Math.random() * (totalDuration * 0.5);
+    if (midi.duration > 30) {
+      // Cerca il segmento di 15s con più note (= parte più densa = ritornello)
+      const step = 5;
+      let bestDensity = 0;
+      for (let t = 0; t < midi.duration - 15; t += step) {
+        const density = (track?.notes || []).filter(n => n.time >= t && n.time < t + 15).length;
+        if (density > bestDensity) { bestDensity = density; startOffset = t; }
+      }
     }
 
-    midi.tracks.forEach(track => {
-      track.notes.forEach(note => {
-        const t = note.time - startOffset;
-        if (t < 0 || t > 25) return; // max 25 secondi
-        synth.triggerAttackRelease(note.name, note.duration, now + t, note.velocity);
-      });
+    // ── Schedula note con Tone.Transport ────────────────────────────────────
+    Tone.Transport.stop();
+    Tone.Transport.cancel(0);
+    Tone.Transport.position = 0;
+
+    let noteCount = 0;
+    (track?.notes || []).forEach(note => {
+      const t = note.time - startOffset;
+      if (t < 0 || t > 15) return;
+      if (note.midi < 45 || note.midi > 88) return;
+      Tone.Transport.schedule(time => {
+        if (window._midiSession !== sessionId) return;
+        try { synth.triggerAttackRelease(note.name, Math.min(note.duration, 2), time, note.velocity); } catch(e) {}
+      }, t);
+      noteCount++;
     });
 
-    midiPlayer = synth;
+    if (window._midiSession !== sessionId) return;
+    Tone.Transport.start();
+    console.log('Note:', noteCount, 'offset:', startOffset.toFixed(1), 'durata:', midi.duration.toFixed(1));
+
     document.getElementById('mq-note').textContent = '🎵';
     document.getElementById('mq-status').textContent = 'In riproduzione...';
 
-    // Barra progressione
-    const start = Date.now();
-    const maxMs = Math.min(25000, musicTimeLeft * 1000);
+    // ── Barra progressione ──────────────────────────────────────────────────
+    const startMs = Date.now();
     midiProgressInterval = setInterval(() => {
-      const elapsed = Date.now() - start;
-      const pct = Math.min(100, elapsed / maxMs * 100);
+      if (window._midiSession !== sessionId) { clearInterval(midiProgressInterval); return; }
+      const pct = Math.min(100, (Date.now() - startMs) / 150);
       const bar = document.getElementById('mq-progress-bar');
       if (bar) bar.style.width = pct + '%';
     }, 100);
 
   } catch(e) {
     console.error('Errore MIDI:', e);
-    document.getElementById('mq-note').textContent = '🔇';
-    document.getElementById('mq-status').textContent = 'Errore riproduzione — indovina dal titolo!';
+    const noteEl = document.getElementById('mq-note');
+    const statusEl = document.getElementById('mq-status');
+    if (noteEl) noteEl.textContent = '🔇';
+    if (statusEl) statusEl.textContent = 'Errore riproduzione — indovina dal titolo!';
   }
 }
 
