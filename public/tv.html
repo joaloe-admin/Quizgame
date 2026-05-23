@@ -365,6 +365,11 @@ body.paused #sc-question .q-category-badge { filter: blur(4px); }
 
 /* SCHERMATA SCELTA MODALITÀ con musica */
 #sc-main-mode { align-items:center; justify-content:center; background:linear-gradient(135deg,#2d0036 0%,#86198f 50%,#ec4899 100%); }
+#sc-main-mode .mode-card { background:rgba(255,255,255,0.15); border:3px solid rgba(255,255,255,0.3); border-radius:28px; padding:2rem 2.5rem; text-align:center; cursor:pointer; transition:all .2s; min-width:220px; max-width:280px; }
+#sc-main-mode .mode-card:hover { background:rgba(255,255,255,0.25); transform:scale(1.05); border-color:rgba(255,255,255,0.7); }
+#sc-main-mode .mc-emoji { font-size:52px; display:block; margin-bottom:12px; }
+#sc-main-mode .mc-title { font-size:22px; font-weight:900; color:#fff; margin-bottom:8px; }
+#sc-main-mode .mc-desc  { font-size:13px; color:rgba(255,255,255,0.75); line-height:1.5; }
 
 </style>
 </head>
@@ -1277,7 +1282,9 @@ async function playMidi(url) {
 
   try {
     // Carica MIDI
-    const resp = await fetch(url);
+    // Usa proxy Railway per evitare CORS
+    const proxyUrl = '/midi/' + (url.includes('contabostorage.com') ? url.split('/midi/')[1] : url);
+    const resp = await fetch(proxyUrl);
     const buf = await resp.arrayBuffer();
     const { Midi } = await import('https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/+esm');
     const midi = new Midi(buf);
