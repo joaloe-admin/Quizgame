@@ -372,8 +372,9 @@ body.paused #sc-question .q-category-badge { filter: blur(4px); }
 #sc-main-mode .mc-desc  { font-size:13px; color:rgba(255,255,255,0.75); line-height:1.5; }
 
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/build/Midi.js"></script>
+<script src="https://gleitz.github.io/midi-js-soundfonts/MusyngKite/acoustic_grand_piano-mp3.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js"></script>
 </head>
 <body>
 <canvas id="confetti-canvas"></canvas>
@@ -1270,21 +1271,23 @@ function showMusicQuestion() {
 }
 
 async function playMidi(url) {
-  // ── Ferma tutto immediatamente ───────────────────────────────────────────
+  // ── Ferma tutto ────────────────────────────────────────────────────────────
   clearInterval(midiProgressInterval);
   window._midiSession = (window._midiSession || 0) + 1;
   const sessionId = window._midiSession;
 
-  Tone.Transport.stop();
-  Tone.Transport.cancel(0);
-  Tone.Transport.position = 0;
-
-  if (window._globalSynth) {
-    try { window._globalSynth.releaseAll(); } catch(e) {}
+  // Ferma player precedente
+  if (window._sfPlayer) {
+    try { window._sfPlayer.stop(); } catch(e) {}
+    window._sfPlayer = null;
+  }
+  if (window._sfScheduled) {
+    window._sfScheduled.forEach(clearTimeout);
+    window._sfScheduled = [];
   }
 
   try {
-    // ── Costruisci URL proxy ────────────────────────────────────────────────
+    // ── Fetch MIDI ─────────────────────────────────────────────────────────
     const rawPath = url.includes('contabostorage.com') ? url.split('/midi/')[1] : url;
     const encodedPath = rawPath.split('/').map(s => encodeURIComponent(decodeURIComponent(s))).join('/');
     const proxyUrl = '/midi/' + encodedPath;
@@ -1296,48 +1299,59 @@ async function playMidi(url) {
     if (window._midiSession !== sessionId) return;
 
     const midi = new Midi(buf);
-    await Tone.start();
 
-    // ── Crea synth globale se non esiste ────────────────────────────────────
-    if (!window._globalSynth) {
-      window._globalSynth = new Tone.PolySynth(Tone.Synth, {
-        oscillator: { type: 'triangle' },
-        envelope: { attack: 0.05, decay: 0.2, sustain: 0.4, release: 0.8 },
-        volume: -8,
-      }).toDestination();
+    // ── Carica SoundFont pianoforte ─────────────────────────────────────────
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!window._audioCtx) window._audioCtx = new AudioContext();
+    const ac = window._audioCtx;
+    if (ac.state === 'suspended') await ac.resume();
+
+    if (!window._sfInstrument) {
+      console.log('Carico SoundFont...');
+      document.getElementById('mq-status').textContent = 'Carico suoni...';
+      window._sfInstrument = await Soundfont.instrument(ac, 'acoustic_grand_piano', {
+        soundfont: 'MusyngKite',
+        format: 'mp3',
+      });
+      console.log('SoundFont caricato');
     }
-    const synth = window._globalSynth;
-    synth.releaseAll();
+    const instrument = window._sfInstrument;
+    if (window._midiSession !== sessionId) return;
 
-    // ── Offset fisso: parti dal secondo 10 ─────────────────────────────────
+    // ── Offset dal secondo 10 ───────────────────────────────────────────────
     const startOffset = Math.min(10, midi.duration * 0.2);
 
-    // ── Schedula TUTTE le tracce (nessun filtro) ───────────────────────────
-    Tone.Transport.stop();
-    Tone.Transport.cancel(0);
-    Tone.Transport.position = 0;
-
+    // ── Schedula note con AudioContext timing ───────────────────────────────
+    const baseTime = ac.currentTime + 0.3;
+    window._sfScheduled = [];
     let noteCount = 0;
+
     midi.tracks.forEach(track => {
       track.notes.forEach(note => {
         const t = note.time - startOffset;
         if (t < 0 || t > 15) return;
-        Tone.Transport.schedule(time => {
+        const when = baseTime + t;
+        const msDelay = Math.max(0, (when - ac.currentTime) * 1000 - 50);
+        const tid = setTimeout(() => {
           if (window._midiSession !== sessionId) return;
-          try { synth.triggerAttackRelease(note.name, Math.min(note.duration, 2), time, note.velocity); } catch(e) {}
-        }, t);
+          try {
+            instrument.play(note.name, ac.currentTime + 0.02, {
+              duration: Math.min(note.duration, 2),
+              gain: note.velocity,
+            });
+          } catch(e) {}
+        }, msDelay);
+        window._sfScheduled.push(tid);
         noteCount++;
       });
     });
 
-    if (window._midiSession !== sessionId) return;
-    Tone.Transport.start();
-    console.log('Note totali:', noteCount, 'offset:', startOffset.toFixed(1), 'durata MIDI:', midi.duration.toFixed(1));
+    console.log('Note:', noteCount, 'offset:', startOffset.toFixed(1));
 
     document.getElementById('mq-note').textContent = '🎵';
     document.getElementById('mq-status').textContent = 'In riproduzione...';
 
-    // ── Barra progressione 15s ──────────────────────────────────────────────
+    // ── Barra progressione ──────────────────────────────────────────────────
     const startMs = Date.now();
     midiProgressInterval = setInterval(() => {
       if (window._midiSession !== sessionId) { clearInterval(midiProgressInterval); return; }
