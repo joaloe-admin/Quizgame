@@ -1894,6 +1894,58 @@ io.on('connection',(socket)=>{
     });
   });
 
+
+  // ── GIOCO MUSICALE ──────────────────────────────────────────────────────────
+  socket.on('music-start', ({ questions }) => {
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    room.gameMode = 'music';
+    room.gameState = 'music-playing';
+    room.musicAnswered = {};
+    console.log('Gioco musicale iniziato, domande:', questions);
+  });
+
+  socket.on('music-question', (data) => {
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    room.musicAnswered = {};
+    room.musicCurrentOpts = data.opts;
+    room.musicCorrectIndex = data.correctIndex;
+    // Invia ai telefoni (non alla TV)
+    Object.keys(room.players).forEach(sid => {
+      io.to(sid).emit('music-question', data);
+    });
+  });
+
+  socket.on('music-answer', ({ playerName, answerIndex, timeLeft }) => {
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    if (room.musicAnswered[playerName]) return;
+    room.musicAnswered[playerName] = true;
+    // Inoltra alla TV
+    io.to(room.tvSocketId).emit('music-answer', { playerName, answerIndex, timeLeft });
+  });
+
+  socket.on('music-reveal', (data) => {
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    // Invia reveal ai telefoni
+    Object.keys(room.players).forEach(sid => {
+      io.to(sid).emit('music-reveal', data);
+    });
+  });
+
+  socket.on('music-end', ({ players }) => {
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    room.gameState = 'podium';
+    room.gameMode = 'quiz';
+    emitToRoom(room, 'podium', { players });
+    Object.keys(room.players).forEach(sid => {
+      io.to(sid).emit('music-end', {});
+    });
+  });
+
   // ── PAUSA ─────────────────────────────────────────────────────────────────
   socket.on('pause-game', () => {
     const room = getRoomBySocket(socket.id);

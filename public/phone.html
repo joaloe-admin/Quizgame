@@ -177,6 +177,23 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 .phone-pause-sub   { font-size: 14px; color: rgba(255,255,255,0.55); }
 @keyframes pausePulse { 0%,100%{opacity:1} 50%{opacity:.5} }
 
+
+/* MUSICA PHONE */
+#sc-music-phone { background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 100%); }
+.mp-badge  { background:#6366f1;color:#fff;border-radius:99px;padding:5px 18px;font-size:13px;font-weight:700;margin-bottom:1rem; }
+.mp-title  { font-size:22px;font-weight:900;color:#fff;margin-bottom:6px;text-align:center; }
+.mp-sub    { font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:1.5rem;text-align:center; }
+.mp-opts   { display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px; }
+.mp-opt    { background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);
+              border-radius:18px;padding:14px 18px;font-size:16px;font-weight:700;color:#fff;
+              cursor:pointer;text-align:left;transition:all .15s; }
+.mp-opt:active { transform:scale(0.97); }
+.mp-opt.correct { background:rgba(16,185,129,0.3);border-color:#10b981; }
+.mp-opt.wrong   { background:rgba(239,68,68,0.2);border-color:#ef4444;opacity:0.5; }
+.mp-opt.disabled { pointer-events:none; }
+.mp-artist { font-size:12px;font-weight:400;opacity:0.7;display:block;margin-top:2px; }
+.mp-wait   { font-size:40px;margin-bottom:1rem; }
+
 </style>
 </head>
 <body>
@@ -189,6 +206,30 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
     <div class="phone-pause-icon">⏸️</div>
     <div class="phone-pause-label">Pausa</div>
     <div class="phone-pause-sub">Il gioco riprenderà a breve...</div>
+  </div>
+
+
+  <!-- MUSICA: domanda -->
+  <div class="screen" id="sc-music-phone">
+    <div class="topbar">
+      <div class="topbar-logo"><img src="/img/logo.png" alt="JSupport" style="height:28px;object-fit:contain;filter:brightness(0) invert(1);"></div>
+      <div class="topbar-name" id="topbar-name-mp"></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem">
+      <div class="mp-badge" id="mp-badge">Domanda 1 / 10</div>
+      <div class="mp-title">🎵 Ascolta e indovina!</div>
+      <div class="mp-sub">Scegli il titolo della canzone</div>
+      <div class="mp-opts" id="mp-opts"></div>
+    </div>
+  </div>
+
+  <!-- MUSICA: attendi -->
+  <div class="screen" id="sc-music-wait">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center">
+      <div class="mp-wait">✅</div>
+      <div style="font-size:20px;font-weight:800;color:#fff">Risposta inviata!</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.6);margin-top:8px">Aspetta la prossima domanda...</div>
+    </div>
   </div>
 
   <div class="screen active" id="sc-join">
@@ -839,6 +880,56 @@ socket.on('game-paused', function() {
 });
 socket.on('game-resumed', function() {
   document.getElementById('phone-pause-banner').classList.remove('active');
+});
+
+
+// MUSICA TELEFONO
+let musicAnsweredPhone = false;
+
+function sendMusicAnswer(index, btn) {
+  if (musicAnsweredPhone) return;
+  musicAnsweredPhone = true;
+  socket.emit('music-answer', {
+    playerName: playerName,
+    answerIndex: index,
+    timeLeft: musicPhoneTimeLeft || 0,
+  });
+  document.querySelectorAll('.mp-opt').forEach(b => b.classList.add('disabled'));
+  showScreen('sc-music-wait');
+}
+
+let musicPhoneTimeLeft = 15;
+
+socket.on('music-question', function(data) {
+  musicAnsweredPhone = false;
+  musicPhoneTimeLeft = 15;
+  document.getElementById('mp-badge').textContent =
+    'Domanda ' + (data.index + 1) + ' / ' + data.total;
+  document.getElementById('mp-opts').innerHTML = data.opts.map((o, i) =>
+    '<button class="mp-opt" onclick="sendMusicAnswer(' + i + ', this)">' +
+    o.title + '<span class="mp-artist">' + o.artist + '</span></button>'
+  ).join('');
+  showScreen('sc-music-phone');
+  // Countdown locale
+  const interval = setInterval(() => {
+    musicPhoneTimeLeft--;
+    if (musicPhoneTimeLeft <= 0) clearInterval(interval);
+  }, 1000);
+});
+
+socket.on('music-reveal', function(data) {
+  const opts = document.querySelectorAll('.mp-opt');
+  opts.forEach((el, i) => {
+    el.classList.add('disabled');
+    if (i === data.correctIndex) el.classList.add('correct');
+    else el.classList.add('wrong');
+  });
+  if (!musicAnsweredPhone) showScreen('sc-music-phone');
+  setTimeout(() => { musicAnsweredPhone = false; }, 1000);
+});
+
+socket.on('music-end', function() {
+  showScreen('sc-wait');
 });
 
 socket.on("reset", () => {

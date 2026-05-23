@@ -320,6 +320,52 @@ body.paused #sc-question .q-category-badge { filter: blur(4px); }
 .ig-game-badge { background:rgba(255,255,255,0.15); border-radius:99px; padding:6px 20px;
                  font-size:14px; font-weight:700; color:#fff; margin-bottom:1.2rem; }
 
+
+/* GIOCO MUSICALE */
+#sc-music-mode { align-items:center; justify-content:center; background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#312e81 100%); }
+.mm-title   { font-size:38px; font-weight:900; color:#fff; margin-bottom:8px; text-align:center; }
+.mm-sub     { font-size:16px; color:rgba(255,255,255,0.7); margin-bottom:2rem; text-align:center; }
+.mm-cards   { display:flex; gap:20px; margin-bottom:2rem; flex-wrap:wrap; justify-content:center; }
+.mm-card    { background:rgba(255,255,255,0.1); border:3px solid rgba(255,255,255,0.2);
+               border-radius:22px; padding:1.5rem 2rem; text-align:center; cursor:pointer;
+               transition:all .2s; min-width:140px; }
+.mm-card:hover { background:rgba(255,255,255,0.2); transform:scale(1.05); border-color:rgba(255,255,255,0.5); }
+.mm-card.selected { background:rgba(99,102,241,0.4); border-color:#818cf8; }
+.mm-card .mc-emoji { font-size:32px; display:block; margin-bottom:8px; }
+.mm-card .mc-label { font-size:14px; font-weight:700; color:#fff; }
+.mm-card .mc-count { font-size:11px; color:rgba(255,255,255,0.6); margin-top:4px; }
+.mm-btn { padding:14px 40px; background:#6366f1; color:#fff; border:none; border-radius:99px;
+           font-size:18px; font-weight:900; cursor:pointer; }
+.mm-btn:hover { background:#4f46e5; }
+
+/* SCHERMATA DOMANDA MUSICALE */
+#sc-music-question { background:#0f172a; }
+.mq-header { display:flex; align-items:center; justify-content:space-between;
+              padding:1rem 2rem; background:rgba(255,255,255,0.05); }
+.mq-badge  { background:#6366f1; color:#fff; border-radius:99px; padding:4px 16px;
+              font-size:13px; font-weight:700; }
+.mq-body   { flex:1; display:flex; flex-direction:column; align-items:center;
+              justify-content:center; padding:1.5rem; gap:1.5rem; }
+.mq-player { background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.15);
+              border-radius:28px; padding:2rem; width:100%; max-width:560px; text-align:center; }
+.mq-note   { font-size:64px; margin-bottom:0.5rem; }
+.mq-status { font-size:16px; color:rgba(255,255,255,0.7); margin-bottom:1rem; }
+.mq-bar-wrap { background:rgba(255,255,255,0.1); border-radius:99px; height:8px; overflow:hidden; }
+.mq-bar    { height:100%; background:linear-gradient(90deg,#6366f1,#a78bfa); border-radius:99px;
+              transition:width 0.1s linear; }
+.mq-opts   { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; max-width:560px; }
+.mq-opt    { background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.15);
+              border-radius:18px; padding:16px 12px; cursor:pointer; text-align:center;
+              font-size:15px; font-weight:700; color:#fff; transition:all .15s; }
+.mq-opt:hover { background:rgba(99,102,241,0.3); border-color:#818cf8; }
+.mq-opt.correct { background:rgba(16,185,129,0.3); border-color:#10b981; }
+.mq-opt.wrong   { background:rgba(239,68,68,0.25); border-color:#ef4444; opacity:0.6; }
+.mq-timer-bar   { height:6px; background:rgba(255,255,255,0.1); }
+.mq-timer-fill  { height:100%; background:#6366f1; transition:width 1s linear; }
+
+/* SCHERMATA SCELTA MODALITÀ con musica */
+#sc-main-mode { align-items:center; justify-content:center; background:linear-gradient(135deg,#2d0036 0%,#86198f 50%,#ec4899 100%); }
+
 </style>
 </head>
 <body>
@@ -446,6 +492,76 @@ body.paused #sc-question .q-category-badge { filter: blur(4px); }
       <div class="ig-sub" id="ig-sub">Il prossimo game inizia tra poco...</div>
       <div class="ig-ranking" id="ig-ranking"></div>
       <button class="ig-next-btn" id="ig-next-btn" onclick="startNextGame()">▶ Game successivo</button>
+    </div>
+  </div>
+
+
+  <!-- SCELTA MODALITÀ PRINCIPALE (quiz o musica) -->
+  <div class="screen" id="sc-main-mode">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:2rem">
+      <div style="font-size:38px;font-weight:900;color:#fff;margin-bottom:8px;text-align:center">🎮 Cosa giochiamo?</div>
+      <div style="font-size:16px;color:rgba(255,255,255,0.75);margin-bottom:2.5rem;text-align:center">Scegli la modalità di gioco</div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-bottom:2rem">
+        <div class="mode-card" onclick="goToQuiz()" style="min-width:200px">
+          <span class="mc-emoji">🧠</span>
+          <div class="mc-title">Cultura Generale</div>
+          <div class="mc-desc">20 domande miste su Italia, musica, sport, cinema e molto altro</div>
+        </div>
+        <div class="mode-card" onclick="goToMusic()" style="min-width:200px">
+          <span class="mc-emoji">🎵</span>
+          <div class="mc-title">Indovina la Canzone</div>
+          <div class="mc-desc">Ascolta la melodia MIDI e indovina il titolo tra 4 opzioni!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCELTA GENERE MUSICALE -->
+  <div class="screen" id="sc-music-mode">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:2rem">
+      <div class="mm-title">🎵 Indovina la Canzone</div>
+      <div class="mm-sub">Che tipo di musica volete ascoltare?</div>
+      <div class="mm-cards">
+        <div class="mm-card selected" id="mc-misto" onclick="selectMusicGenre('misto')">
+          <span class="mc-emoji">🌍</span>
+          <div class="mc-label">Misto</div>
+          <div class="mc-count">italiani + stranieri</div>
+        </div>
+        <div class="mm-card" id="mc-italiano" onclick="selectMusicGenre('italiano')">
+          <span class="mc-emoji">🇮🇹</span>
+          <div class="mc-label">Italiani</div>
+          <div class="mc-count">canzoni italiane</div>
+        </div>
+        <div class="mm-card" id="mc-straniero" onclick="selectMusicGenre('straniero')">
+          <span class="mc-emoji">🌐</span>
+          <div class="mc-label">Stranieri</div>
+          <div class="mc-count">canzoni straniere</div>
+        </div>
+      </div>
+      <button class="mm-btn" onclick="startMusicGame()">▶ Inizia!</button>
+    </div>
+  </div>
+
+  <!-- DOMANDA MUSICALE -->
+  <div class="screen" id="sc-music-question">
+    <div class="mq-header">
+      <div class="mq-badge" id="mq-badge">Domanda 1 / 10</div>
+      <div style="color:rgba(255,255,255,0.7);font-size:14px">🎵 Indovina la Canzone</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="color:rgba(255,255,255,0.6);font-size:13px" id="mq-timer-num">15</span>
+        <span style="color:rgba(255,255,255,0.4);font-size:12px">sec</span>
+      </div>
+    </div>
+    <div class="mq-timer-bar"><div class="mq-timer-fill" id="mq-timer-fill"></div></div>
+    <div class="mq-body">
+      <div class="mq-player">
+        <div class="mq-note" id="mq-note">🎵</div>
+        <div class="mq-status" id="mq-status">In riproduzione...</div>
+        <div class="mq-bar-wrap">
+          <div class="mq-bar" id="mq-progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="mq-opts" id="mq-opts"></div>
     </div>
   </div>
 
@@ -970,12 +1086,7 @@ function startNextGame() {
 
 // Override startGame per mostrare prima la schermata torneo
 function startGame() {
-  selectedGames = 1;
-  [1,3,5].forEach(x => {
-    const el = document.getElementById('tc-' + x);
-    if (el) el.classList.toggle('selected', x === 1);
-  });
-  showScreen('sc-tournament');
+  showScreen('sc-main-mode');
 }
 
 // Aggiorna handler round-end per gestire torneo multi-game
@@ -1017,6 +1128,270 @@ socket.on('round-end', ({ players, isLastRound, stats, currentGame, tournamentGa
 function endGame()   { socket.emit('end-game'); }
 function resetGame() { socket.emit('reset-game'); }
 
+
+
+// ── GIOCO MUSICALE ────────────────────────────────────────────────────────────
+let midiCatalog = null;
+let musicGenre = 'misto';
+let musicQuestions = [];
+let musicCurrentQ = 0;
+let musicScore = {};
+let musicAnswered = false;
+let musicTimer = null;
+let musicTimeLeft = 15;
+let midiPlayer = null;
+let midiProgressInterval = null;
+
+function goToQuiz() {
+  // Vai alla scelta torneo
+  selectedGames = 1;
+  [1,3,5].forEach(x => {
+    const el = document.getElementById('tc-' + x);
+    if (el) el.classList.toggle('selected', x === 1);
+  });
+  showScreen('sc-tournament');
+}
+
+function goToMusic() {
+  showScreen('sc-music-mode');
+  // Carica catalogo se non ancora caricato
+  if (!midiCatalog) {
+    fetch('/midi_catalog.json')
+      .then(r => r.json())
+      .then(data => {
+        midiCatalog = data.songs;
+        // Aggiorna contatori
+        const it = midiCatalog.filter(s => s.lang === 'italiano').length;
+        const st = midiCatalog.filter(s => s.lang === 'straniero').length;
+        document.querySelector('#mc-italiano .mc-count').textContent = it + ' canzoni';
+        document.querySelector('#mc-straniero .mc-count').textContent = st + ' canzoni';
+        document.querySelector('#mc-misto .mc-count').textContent = (it+st) + ' canzoni';
+      })
+      .catch(() => console.error('Errore caricamento catalogo'));
+  }
+}
+
+function selectMusicGenre(genre) {
+  musicGenre = genre;
+  ['misto','italiano','straniero'].forEach(g => {
+    const el = document.getElementById('mc-' + g);
+    if (el) el.classList.toggle('selected', g === genre);
+  });
+}
+
+function startMusicGame() {
+  if (!midiCatalog) {
+    alert('Catalogo non ancora caricato, aspetta un momento...');
+    return;
+  }
+  // Filtra per genere
+  let pool = musicGenre === 'misto'
+    ? midiCatalog
+    : midiCatalog.filter(s => s.lang === musicGenre);
+
+  // Genera 10 domande con 4 opzioni ciascuna
+  pool = shuffleArr([...pool]);
+  musicQuestions = [];
+  const used = new Set();
+
+  for (let i = 0; i < Math.min(10, pool.length); i++) {
+    const correct = pool[i];
+    if (used.has(correct.title)) continue;
+    used.add(correct.title);
+
+    // 3 opzioni sbagliate dallo stesso genere
+    const wrongPool = pool.filter(s => s.title !== correct.title && !used.has(s.title));
+    const wrongs = shuffleArr(wrongPool).slice(0, 3);
+
+    const opts = shuffleArr([correct, ...wrongs]);
+    musicQuestions.push({ correct, opts });
+  }
+
+  musicCurrentQ = 0;
+  musicScore = {};
+  Object.values(currentPlayers).forEach(p => { musicScore[p.name] = 0; });
+
+  socket.emit('music-start', { questions: musicQuestions.length });
+  showMusicQuestion();
+}
+
+function showMusicQuestion() {
+  if (musicCurrentQ >= musicQuestions.length) {
+    endMusicGame();
+    return;
+  }
+
+  const q = musicQuestions[musicCurrentQ];
+  musicAnswered = false;
+  musicTimeLeft = 15;
+
+  // Aggiorna badge
+  document.getElementById('mq-badge').textContent =
+    'Domanda ' + (musicCurrentQ + 1) + ' / ' + musicQuestions.length;
+
+  // Aggiorna opzioni
+  document.getElementById('mq-opts').innerHTML = q.opts.map((s, i) =>
+    '<div class="mq-opt" id="mq-opt-' + i + '">' + s.title + '<br><small style="opacity:.6;font-weight:400">' + s.artist + '</small></div>'
+  ).join('');
+
+  // Timer UI
+  document.getElementById('mq-timer-num').textContent = musicTimeLeft;
+  document.getElementById('mq-timer-fill').style.width = '100%';
+  document.getElementById('mq-note').textContent = '🎵';
+  document.getElementById('mq-status').textContent = 'In riproduzione...';
+  document.getElementById('mq-progress-bar').style.width = '0%';
+
+  showScreen('sc-music-question');
+
+  // Avvia riproduzione MIDI via Tone.js
+  playMidi(q.correct.url);
+
+  // Emetti domanda ai telefoni
+  socket.emit('music-question', {
+    index: musicCurrentQ,
+    total: musicQuestions.length,
+    opts: q.opts.map(s => ({ title: s.title, artist: s.artist })),
+    correctIndex: q.opts.indexOf(q.correct),
+  });
+
+  // Timer
+  clearInterval(musicTimer);
+  musicTimer = setInterval(() => {
+    musicTimeLeft--;
+    document.getElementById('mq-timer-num').textContent = musicTimeLeft;
+    document.getElementById('mq-timer-fill').style.width = (musicTimeLeft / 15 * 100) + '%';
+    if (musicTimeLeft <= 0) {
+      clearInterval(musicTimer);
+      revealMusicAnswer(q);
+    }
+  }, 1000);
+}
+
+async function playMidi(url) {
+  // Ferma riproduzione precedente
+  if (midiPlayer) {
+    try { midiPlayer.stop(); } catch(e) {}
+    midiPlayer = null;
+  }
+  clearInterval(midiProgressInterval);
+
+  try {
+    // Carica MIDI
+    const resp = await fetch(url);
+    const buf = await resp.arrayBuffer();
+    const { Midi } = await import('https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/+esm');
+    const midi = new Midi(buf);
+
+    await Tone.start();
+    const synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'triangle' },
+      envelope: { attack: 0.02, decay: 0.1, sustain: 0.5, release: 0.8 },
+      volume: -6,
+    }).toDestination();
+
+    const now = Tone.now() + 0.5;
+    const totalDuration = midi.duration;
+    let startOffset = 0;
+    // Inizia da un punto casuale (max 60% del brano)
+    if (totalDuration > 30) {
+      startOffset = Math.random() * (totalDuration * 0.5);
+    }
+
+    midi.tracks.forEach(track => {
+      track.notes.forEach(note => {
+        const t = note.time - startOffset;
+        if (t < 0 || t > 25) return; // max 25 secondi
+        synth.triggerAttackRelease(note.name, note.duration, now + t, note.velocity);
+      });
+    });
+
+    midiPlayer = synth;
+    document.getElementById('mq-note').textContent = '🎵';
+    document.getElementById('mq-status').textContent = 'In riproduzione...';
+
+    // Barra progressione
+    const start = Date.now();
+    const maxMs = Math.min(25000, musicTimeLeft * 1000);
+    midiProgressInterval = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const pct = Math.min(100, elapsed / maxMs * 100);
+      const bar = document.getElementById('mq-progress-bar');
+      if (bar) bar.style.width = pct + '%';
+    }, 100);
+
+  } catch(e) {
+    console.error('Errore MIDI:', e);
+    document.getElementById('mq-note').textContent = '🔇';
+    document.getElementById('mq-status').textContent = 'Errore riproduzione — indovina dal titolo!';
+  }
+}
+
+function revealMusicAnswer(q) {
+  musicAnswered = true;
+  clearInterval(musicTimer);
+  clearInterval(midiProgressInterval);
+  if (midiPlayer) { try { midiPlayer.stop(); } catch(e) {} }
+
+  const correctIdx = q.opts.indexOf(q.correct);
+  q.opts.forEach((s, i) => {
+    const el = document.getElementById('mq-opt-' + i);
+    if (!el) return;
+    if (i === correctIdx) el.classList.add('correct');
+    else el.classList.add('wrong');
+  });
+
+  document.getElementById('mq-note').textContent = '✅';
+  document.getElementById('mq-status').textContent = q.correct.title + ' — ' + q.correct.artist;
+
+  socket.emit('music-reveal', { correctIndex: correctIdx });
+
+  setTimeout(() => {
+    musicCurrentQ++;
+    showMusicQuestion();
+  }, 3500);
+}
+
+function endMusicGame() {
+  // Mostra podio con punteggi musica
+  const sorted = Object.entries(musicScore)
+    .map(([name, score]) => {
+      const player = currentPlayers.find(p => p.name === name);
+      return { name, score, char: player?.char };
+    })
+    .sort((a,b) => b.score - a.score);
+
+  socket.emit('music-end', { players: sorted });
+  showScreen('sc-podium');
+  // Usa il podio esistente del quiz
+  emitToTV_podium(sorted);
+}
+
+// Risposta musica dal telefono
+socket.on('music-answer', ({ playerName, answerIndex, timeLeft }) => {
+  const q = musicQuestions[musicCurrentQ];
+  if (!q || musicAnswered) return;
+  const correct = q.opts.indexOf(q.correct) === answerIndex;
+  if (correct) {
+    const pts = 10 + timeLeft;
+    musicScore[playerName] = (musicScore[playerName] || 0) + pts;
+    // Aggiorna score display sul TV tramite event
+    emitToRoom_musicScore(playerName, pts);
+  }
+  // Se tutti hanno risposto
+  const answered = Object.keys(musicAnsweredMap || {}).length;
+  if (answered >= currentPlayers.length - 1) {
+    clearInterval(musicTimer);
+    revealMusicAnswer(q);
+  }
+});
+
+function shuffleArr(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
 socket.on('connect', () => socket.emit('register-tv'));
 loadQR();
