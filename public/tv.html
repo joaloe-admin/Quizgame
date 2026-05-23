@@ -374,8 +374,15 @@ body.paused #sc-question .q-category-badge { filter: blur(4px); }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/build/Midi.js"></script>
 <script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
-<!-- SoundFont: Pianoforte Steinway (alta qualità) -->
-<script src="https://surikov.github.io/webaudiofontdata/sound/0000_Aspirin_sf2_file.js"></script>
+<!-- SoundFont multi-strumento FluidR3 GM -->
+<script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0250_JCLive_sf2_file.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0260_JCLive_sf2_file.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0280_JCLive_sf2_file.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0400_JCLive_sf2_file.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0480_JCLive_sf2_file.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0560_JCLive_sf2_file.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0680_JCLive_sf2_file.js"></script>
 </head>
 <body>
 <canvas id="confetti-canvas"></canvas>
@@ -1277,7 +1284,6 @@ async function playMidi(url) {
   window._midiSession = (window._midiSession || 0) + 1;
   const sessionId = window._midiSession;
 
-  // Ferma player WebAudioFont precedente
   if (window._wafPlayer && window._wafAudioContext) {
     try { window._wafPlayer.cancelQueue(window._wafAudioContext); } catch(e) {}
   }
@@ -1301,53 +1307,75 @@ async function playMidi(url) {
     if (!window._wafAudioContext) window._wafAudioContext = new AudioContext();
     const ac = window._wafAudioContext;
     if (ac.state === 'suspended') await ac.resume();
-
     if (!window._wafPlayer) window._wafPlayer = new WebAudioFontPlayer();
 
-    // Decodifica il SoundFont se non ancora fatto
-    if (!window._wafReady) {
-      window._wafPlayer.loader.decodeAfterLoading(ac, '_tone_0000_Aspirin_sf2_file');
-      await new Promise(r => setTimeout(r, 800));
-      window._wafReady = true;
-    }
-
     const player = window._wafPlayer;
-    const font = window._tone_0000_Aspirin_sf2_file;
-    if (!font) throw new Error('SoundFont non caricato');
+
+    // Mappa strumenti GM → JCLive soundfont disponibili
+    // Program number → variabile globale soundfont
+    const instrumentMap = {
+      0:  '_tone_0000_JCLive_sf2_file',   // Piano
+      25: '_tone_0250_JCLive_sf2_file',   // Acoustic Guitar
+      26: '_tone_0260_JCLive_sf2_file',   // Electric Guitar
+      28: '_tone_0280_JCLive_sf2_file',   // Electric Guitar (muted)
+      40: '_tone_0400_JCLive_sf2_file',   // Violin
+      48: '_tone_0480_JCLive_sf2_file',   // Strings
+      56: '_tone_0560_JCLive_sf2_file',   // Trumpet
+      68: '_tone_0680_JCLive_sf2_file',   // Oboe
+    };
+    const defaultFont = '_tone_0000_JCLive_sf2_file';
+
+    // Decodifica i soundfont
+    if (!window._wafDecoded) {
+      window._wafDecoded = true;
+      Object.values(instrumentMap).forEach(name => {
+        if (window[name]) player.loader.decodeAfterLoading(ac, name);
+      });
+      await new Promise(r => setTimeout(r, 1000));
+    }
 
     if (window._midiSession !== sessionId) return;
 
     // ── Offset dal secondo 10 ───────────────────────────────────────────────
     const startOffset = Math.min(10, midi.duration * 0.2);
-
-    // ── Schedula tutte le note ──────────────────────────────────────────────
-    const baseTime = ac.currentTime + 0.3;
+    const baseTime = ac.currentTime + 0.5;
     let noteCount = 0;
 
+    // ── Schedula note per traccia con strumento corretto ────────────────────
     midi.tracks.forEach(track => {
+      // Trova il program number della traccia
+      const program = track.instrument?.number ?? 0;
+      const isDrums = track.channel === 9;
+      if (isDrums) return; // salta batteria
+
+      // Scegli il font più vicino al programma
+      let fontName = defaultFont;
+      const keys = Object.keys(instrumentMap).map(Number).sort((a,b) => a-b);
+      for (const k of keys) {
+        if (program >= k) fontName = instrumentMap[k];
+      }
+      const font = window[fontName];
+      if (!font) return;
+
       track.notes.forEach(note => {
         const t = note.time - startOffset;
         if (t < 0 || t > 15) return;
-        if (window._midiSession !== sessionId) return;
         player.queueWaveTable(
-          ac,
-          ac.destination,
-          font,
+          ac, ac.destination, font,
           baseTime + t,
           note.midi,
-          Math.min(note.duration, 2.5),
-          note.velocity
+          Math.min(note.duration, 3),
+          note.velocity * 0.9
         );
         noteCount++;
       });
     });
 
-    console.log('Note schedulate:', noteCount, 'offset:', startOffset.toFixed(1));
+    console.log('Note:', noteCount, 'offset:', startOffset.toFixed(1), 'tracce:', midi.tracks.length);
 
     document.getElementById('mq-note').textContent = '🎵';
     document.getElementById('mq-status').textContent = 'In riproduzione...';
 
-    // ── Barra progressione ──────────────────────────────────────────────────
     const startMs = Date.now();
     midiProgressInterval = setInterval(() => {
       if (window._midiSession !== sessionId) { clearInterval(midiProgressInterval); return; }
