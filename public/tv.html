@@ -1277,7 +1277,11 @@ async function playMidi(url) {
   try {
     // Carica MIDI
     // Usa proxy Railway per evitare CORS
-    const proxyUrl = '/midi/' + (url.includes('contabostorage.com') ? url.split('/midi/')[1] : url);
+    const rawPath = url.includes('contabostorage.com') ? url.split('/midi/')[1] : url;
+    // Encode ogni segmento separatamente per preservare gli slash
+    const encodedPath = rawPath.split('/').map(s => encodeURIComponent(decodeURIComponent(s))).join('/');
+    const proxyUrl = '/midi/' + encodedPath;
+    console.log('Fetching MIDI:', proxyUrl);
     const resp = await fetch(proxyUrl);
     const buf = await resp.arrayBuffer();
     const { Midi } = await import('https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/+esm');

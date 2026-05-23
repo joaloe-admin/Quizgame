@@ -1513,14 +1513,22 @@ setInterval(()=>{ Object.keys(rooms).forEach(code=>{ const r=rooms[code]; if(Obj
 
 // ── PROXY MIDI ───────────────────────────────────────────────────────────────
 app.get('/midi/*', (req, res) => {
-  const midiPath = req.path.replace('/midi/', '');
+  // req.params[0] mantiene l'URL encoding originale
+  const midiPath = req.params[0];
   const url = 'https://eu2.contabostorage.com/storage/midi/' + midiPath;
+  console.log('MIDI proxy:', url);
   https.get(url, (upstream) => {
+    if (upstream.statusCode !== 200) {
+      console.error('Contabo error:', upstream.statusCode, url);
+      res.status(upstream.statusCode).send('MIDI not found: ' + upstream.statusCode);
+      return;
+    }
     res.setHeader('Content-Type', 'audio/midi');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Cache-Control', 'public, max-age=86400');
     upstream.pipe(res);
   }).on('error', (e) => {
+    console.error('MIDI proxy error:', e.message);
     res.status(500).send('MIDI error: ' + e.message);
   });
 });
