@@ -1,4 +1,5 @@
 const express = require('express');
+const https   = require('https');
 const http = require('http');
 const { Server } = require('socket.io');
 const QRCode = require('qrcode');
@@ -1511,7 +1512,6 @@ function levenshtein(a,b) {
 setInterval(()=>{ Object.keys(rooms).forEach(code=>{ const r=rooms[code]; if(Object.keys(r.players).length===0&&!r.tvSocketId) delete rooms[code]; }); },1000*60*30);
 
 // ── PROXY MIDI ───────────────────────────────────────────────────────────────
-const https = require('https');
 app.get('/midi/*', (req, res) => {
   const midiPath = req.path.replace('/midi/', '');
   const url = 'https://eu2.contabostorage.com/storage/midi/' + midiPath;

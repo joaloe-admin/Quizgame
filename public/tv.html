@@ -599,8 +599,8 @@ body.paused #sc-question .q-category-badge { filter: blur(4px); }
       </div>
       <div class="audio-timer-badge" id="audio-timer">15s</div>
     </div>
-    <audio id="summer-audio" src="/audio/summer_house.mp3" loop preload="auto"></audio>
-    <audio id="game-audio" src="/audio/lobby_music.mp3" loop preload="auto"></audio>
+    
+    
     <div id="yt-container" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;"></div>
     <div class="freeze-banner" id="freeze-banner">❄️ Timer congelato da <span id="freeze-name"></span>!</div>
     <div class="timer-bar-wrap">
@@ -692,21 +692,14 @@ function charSVG(id, w, h) {
 let currentPlayers = [], timeLeft = 15;
 
 // ── AUDIO ──
-function startLobbyMusic() {
-  const s = document.getElementById('summer-audio');
-  if (!s) return;
-  s.volume=0.4; s.currentTime=0;
-  s.play().catch(()=>document.addEventListener('click',()=>s.play().catch(()=>{}),{once:true}));
-}
-function stopLobbyMusic() { const s=document.getElementById('summer-audio'); if(s){s.pause();s.currentTime=0;} }
-function startGameMusic() { stopLobbyMusic(); const g=document.getElementById('game-audio'); if(!g)return; g.volume=0.35; g.currentTime=0; g.play().catch(()=>{}); }
+function startLobbyMusic() {}
+function stopLobbyMusic() {}
+function startGameMusic() {}
+function setGameMusicVolume() {}
 function stopGameMusic()  { const g=document.getElementById('game-audio'); if(g){g.pause();g.currentTime=0;} }
 function stopAllMusic()   { stopLobbyMusic(); stopGameMusic(); }
 
-function setGameMusicVolume(v) {
-  const g = document.getElementById('game-audio');
-  if (g) g.volume = Math.max(0, Math.min(0.5, v));
-}
+function setGameMusicVolume() {}
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -948,7 +941,7 @@ socket.on('timer', ({ timeLeft: tl }) => {
   if (num)  { num.textContent=tl; num.classList.toggle('urgent',tl<=5); }
   const at=document.getElementById('audio-timer'); if(at) at.textContent=tl+'s';
   // Musica più bassa negli ultimi 5 sec
-  if (tl <= 5) setGameMusicVolume(0.15);
+
   currentPlayers.forEach((_,i) => {
     const tb=document.getElementById('qtb-'+i);
     if(tb&&!tb.classList.contains('answered')) tb.textContent=tl+'s';
