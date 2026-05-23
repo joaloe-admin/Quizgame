@@ -179,21 +179,44 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
 
 
 /* MUSICA PHONE */
-#sc-music-phone { background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 100%); }
-.mp-badge  { background:#6366f1;color:#fff;border-radius:99px;padding:5px 18px;font-size:13px;font-weight:700;margin-bottom:1rem; }
-.mp-title  { font-size:22px;font-weight:900;color:#fff;margin-bottom:6px;text-align:center; }
-.mp-sub    { font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:1.5rem;text-align:center; }
-.mp-opts   { display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px; }
-.mp-opt    { background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);
-              border-radius:18px;padding:14px 18px;font-size:16px;font-weight:700;color:#fff;
-              cursor:pointer;text-align:left;transition:all .15s; }
-.mp-opt:active { transform:scale(0.97); }
-.mp-opt.correct { background:rgba(16,185,129,0.3);border-color:#10b981; }
-.mp-opt.wrong   { background:rgba(239,68,68,0.2);border-color:#ef4444;opacity:0.5; }
+#sc-music-phone {
+  background: linear-gradient(160deg, #0f0c29 0%, #1a1a4e 50%, #24243e 100%);
+}
+.mp-badge {
+  background: linear-gradient(90deg,#6366f1,#a855f7);
+  color:#fff; border-radius:99px; padding:6px 22px;
+  font-size:13px; font-weight:800;
+  margin-bottom:1rem;
+  box-shadow: 0 0 20px rgba(99,102,241,0.5);
+  letter-spacing:0.5px;
+}
+.mp-title { font-size:22px;font-weight:900;color:#fff;margin-bottom:4px;text-align:center; }
+.mp-sub   { font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:1.5rem;text-align:center; }
+.mp-opts  { display:flex;flex-direction:column;gap:12px;width:100%;max-width:360px; }
+.mp-opt {
+  background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.12));
+  border: 2px solid rgba(99,102,241,0.4);
+  border-radius:20px; padding:16px 20px;
+  font-size:16px; font-weight:800; color:#fff;
+  cursor:pointer; text-align:left;
+  transition: all .2s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+  position:relative; overflow:hidden;
+}
+.mp-opt:active { transform:scale(0.96); }
+.mp-opt.correct {
+  background: linear-gradient(135deg,rgba(16,185,129,0.4),rgba(5,150,105,0.25));
+  border-color:#10b981;
+  box-shadow: 0 0 25px rgba(16,185,129,0.5);
+}
+.mp-opt.wrong   { background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.3);opacity:0.45; }
 .mp-opt.disabled { pointer-events:none; }
-.mp-artist { font-size:12px;font-weight:400;opacity:0.7;display:block;margin-top:2px; }
-.mp-wait   { font-size:40px;margin-bottom:1rem; }
+.mp-artist { font-size:12px;font-weight:500;opacity:0.6;display:block;margin-top:3px; }
+.mp-wait   { font-size:48px;margin-bottom:1rem; }
 
+
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+@keyframes notePulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
 </style>
 </head>
 <body>
@@ -224,11 +247,16 @@ html, body { width: 100%; height: 100%; font-family: 'Segoe UI', system-ui, sans
   </div>
 
   <!-- MUSICA: attendi -->
-  <div class="screen" id="sc-music-wait">
+  <div class="screen" id="sc-music-wait" style="background:linear-gradient(160deg,#0f0c29,#1a1a4e,#24243e)">
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center">
-      <div class="mp-wait">✅</div>
-      <div style="font-size:20px;font-weight:800;color:#fff">Risposta inviata!</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.6);margin-top:8px">Aspetta la prossima domanda...</div>
+      <div style="font-size:72px;margin-bottom:1.2rem;animation:notePulse 1.5s ease-in-out infinite">✅</div>
+      <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:8px">Risposta inviata!</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.55)">Aspetta la prossima domanda...</div>
+      <div style="margin-top:2rem;display:flex;gap:8px">
+        <div style="width:10px;height:10px;border-radius:50%;background:#6366f1;animation:bounce 1.2s infinite 0s"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#a855f7;animation:bounce 1.2s infinite 0.2s"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#ec4899;animation:bounce 1.2s infinite 0.4s"></div>
+      </div>
     </div>
   </div>
 
