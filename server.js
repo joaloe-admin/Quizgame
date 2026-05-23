@@ -1510,6 +1510,21 @@ function levenshtein(a,b) {
 
 setInterval(()=>{ Object.keys(rooms).forEach(code=>{ const r=rooms[code]; if(Object.keys(r.players).length===0&&!r.tvSocketId) delete rooms[code]; }); },1000*60*30);
 
+// ── PROXY MIDI ───────────────────────────────────────────────────────────────
+const https = require('https');
+app.get('/midi/*', (req, res) => {
+  const midiPath = req.path.replace('/midi/', '');
+  const url = 'https://eu2.contabostorage.com/storage/midi/' + midiPath;
+  https.get(url, (upstream) => {
+    res.setHeader('Content-Type', 'audio/midi');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    upstream.pipe(res);
+  }).on('error', (e) => {
+    res.status(500).send('MIDI error: ' + e.message);
+  });
+});
+
 app.get('/qr',async(req,res)=>{
   const host=req.headers.host,proto=req.headers['x-forwarded-proto']||'http';
   try { const qr=await QRCode.toDataURL(`${proto}://${host}/phone`,{width:180,margin:1}); res.json({qr}); }
