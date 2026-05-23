@@ -284,6 +284,42 @@ body.paused #sc-question .q-text-box { filter: blur(8px); user-select: none; }
 body.paused #sc-question .opts-grid  { visibility: hidden; }
 body.paused #sc-question .q-category-badge { filter: blur(4px); }
 
+
+/* TORNEO */
+#sc-tournament { align-items:center; justify-content:center; background:linear-gradient(135deg,#2d0036 0%,#86198f 50%,#ec4899 100%); }
+.tourn-title   { font-size:40px; font-weight:900; color:#fff; margin-bottom:8px; text-align:center; }
+.tourn-sub     { font-size:16px; color:rgba(255,255,255,0.75); margin-bottom:2.5rem; text-align:center; }
+.tourn-cards   { display:flex; gap:24px; margin-bottom:2rem; }
+.tourn-card    { background:rgba(255,255,255,0.12); border:3px solid rgba(255,255,255,0.25); border-radius:24px;
+                 padding:2rem 2.5rem; text-align:center; cursor:pointer; transition:all .2s; min-width:160px; }
+.tourn-card:hover { background:rgba(255,255,255,0.22); transform:scale(1.05); border-color:rgba(255,255,255,0.6); }
+.tourn-card.selected { background:rgba(255,255,255,0.28); border-color:#fff; }
+.tourn-card .tc-num  { font-size:56px; font-weight:900; color:#fff; }
+.tourn-card .tc-lbl  { font-size:14px; color:rgba(255,255,255,0.75); font-weight:700; }
+.tourn-btn   { padding:14px 40px; background:#fff; color:#86198f; border:none; border-radius:99px;
+               font-size:18px; font-weight:900; cursor:pointer; }
+.tourn-btn:hover { opacity:.9; }
+
+/* INTER-GAME */
+#sc-intergame { align-items:center; justify-content:center; background:linear-gradient(135deg,#1e3a8a 0%,#4c1d95 100%); }
+.ig-title      { font-size:32px; font-weight:900; color:#fff; margin-bottom:4px; text-align:center; }
+.ig-sub        { font-size:15px; color:rgba(255,255,255,0.7); margin-bottom:1.5rem; text-align:center; }
+.ig-ranking    { display:flex; flex-direction:column; gap:10px; width:100%; max-width:500px; margin-bottom:2rem; }
+.ig-row        { display:flex; align-items:center; gap:14px; background:rgba(255,255,255,0.1);
+                 border-radius:16px; padding:12px 18px; border:1px solid rgba(255,255,255,0.15); }
+.ig-pos        { font-size:22px; font-weight:900; color:#fff; min-width:32px; text-align:center; }
+.ig-name       { font-size:17px; font-weight:700; color:#fff; flex:1; }
+.ig-score      { text-align:right; }
+.ig-game-pts   { font-size:13px; color:rgba(255,255,255,0.6); }
+.ig-total-pts  { font-size:20px; font-weight:900; color:#fbbf24; }
+.ig-delta      { font-size:12px; font-weight:700; padding:2px 8px; border-radius:99px;
+                 background:rgba(16,185,129,0.3); color:#6ee7b7; }
+.ig-next-btn   { padding:16px 44px; background:#10b981; color:#fff; border:none; border-radius:99px;
+                 font-size:18px; font-weight:900; cursor:pointer; }
+.ig-next-btn:hover { opacity:.88; }
+.ig-game-badge { background:rgba(255,255,255,0.15); border-radius:99px; padding:6px 20px;
+                 font-size:14px; font-weight:700; color:#fff; margin-bottom:1.2rem; }
+
 </style>
 </head>
 <body>
@@ -378,6 +414,41 @@ body.paused #sc-question .q-category-badge { filter: blur(4px); }
     <div class="pause-label">Pausa</div>
     <div class="pause-hint">Tocca lo schermo per riprendere</div>
   </div>
+
+  <!-- SCELTA NUMERO GAME -->
+  <div class="screen" id="sc-tournament">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:2rem">
+      <div class="tourn-title">🏆 Quanti game?</div>
+      <div class="tourn-sub">I punti si accumulano tra i game — vince chi ne ha di più alla fine!</div>
+      <div class="tourn-cards">
+        <div class="tourn-card selected" id="tc-1" onclick="selectTournamentGames(1)">
+          <div class="tc-num">1</div>
+          <div class="tc-lbl">game</div>
+        </div>
+        <div class="tourn-card" id="tc-3" onclick="selectTournamentGames(3)">
+          <div class="tc-num">3</div>
+          <div class="tc-lbl">game</div>
+        </div>
+        <div class="tourn-card" id="tc-5" onclick="selectTournamentGames(5)">
+          <div class="tc-num">5</div>
+          <div class="tc-lbl">game</div>
+        </div>
+      </div>
+      <button class="tourn-btn" onclick="confirmTournament()">▶ Inizia!</button>
+    </div>
+  </div>
+
+  <!-- INTER-GAME: classifica cumulativa tra un game e l'altro -->
+  <div class="screen" id="sc-intergame">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:2rem">
+      <div class="ig-game-badge" id="ig-badge">Fine Game 1 di 3</div>
+      <div class="ig-title" id="ig-title">Classifica dopo il Game 1</div>
+      <div class="ig-sub" id="ig-sub">Il prossimo game inizia tra poco...</div>
+      <div class="ig-ranking" id="ig-ranking"></div>
+      <button class="ig-next-btn" id="ig-next-btn" onclick="startNextGame()">▶ Game successivo</button>
+    </div>
+  </div>
+
   <!-- SPLASH -->
   <div class="screen" id="sc-splash" style="background:linear-gradient(135deg,#2d0036 0%,#86198f 50%,#ec4899 100%)">
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1">
@@ -793,23 +864,6 @@ socket.on('mini-podio', ({ players, qDone, total }) => {
   ).join('');
 });
 
-socket.on('round-end', ({ players, isLastRound }) => {
-  stopAllMusic();
-  if (isLastRound) {
-    showScreen('sc-round-end');
-    document.getElementById('round-end-title').textContent='🏆 Partita terminata!';
-    document.getElementById('round-end-sub').textContent='Ecco la classifica finale';
-    const medals=['🥇','🥈','🥉'];
-    document.getElementById('rank-list').innerHTML = players.map((p,i)=>
-      `<div class="rank-row ${i===0?'first':''}">
-        <span class="rank-medal">${medals[i]||(i+1)+'°'}</span>
-        ${charSVG(p.char.id,40,40)}
-        <span class="rank-name">${p.name}</span>
-        <span class="rank-score">${p.score} pt</span>
-      </div>`
-    ).join('');
-  }
-});
 
 socket.on('podium', ({ players, stats }) => {
   showScreen('sc-podium');
@@ -864,7 +918,79 @@ socket.on('reset', ({ code }) => {
   loadQR(code);
 });
 
-function startGame() { showRules(); }
+
+// ── TORNEO ────────────────────────────────────────────────────────────────────
+let selectedGames = 1;
+let tournamentGames = 1;
+let currentGameNum = 0;
+let prevTournamentScores = {};
+
+function selectTournamentGames(n) {
+  selectedGames = n;
+  [1,3,5].forEach(x => {
+    const el = document.getElementById('tc-' + x);
+    if (el) el.classList.toggle('selected', x === n);
+  });
+}
+
+function confirmTournament() {
+  tournamentGames = selectedGames;
+  currentGameNum = 0;
+  prevTournamentScores = {};
+  socket.emit('set-tournament-games', { games: tournamentGames });
+  showRules();
+}
+
+function startNextGame() {
+  socket.emit('next-game');
+}
+
+// Override startGame per mostrare prima la schermata torneo
+function startGame() {
+  selectedGames = 1;
+  [1,3,5].forEach(x => {
+    const el = document.getElementById('tc-' + x);
+    if (el) el.classList.toggle('selected', x === 1);
+  });
+  showScreen('sc-tournament');
+}
+
+// Aggiorna handler round-end per gestire torneo multi-game
+socket.on('round-end', ({ players, isLastRound, stats, currentGame, tournamentGames: tg, tournamentRanking }) => {
+  if (tg && tg > 1 && !isLastRound) {
+    // Mostra classifica inter-game
+    const gamesDone = currentGame || 1;
+    document.getElementById('ig-badge').textContent = 'Fine Game ' + gamesDone + ' di ' + tg;
+    document.getElementById('ig-title').textContent = 'Classifica dopo il Game ' + gamesDone;
+    document.getElementById('ig-sub').textContent = 'Mancano ancora ' + (tg - gamesDone) + ' game!';
+
+    const medals = ['🥇','🥈','🥉'];
+    document.getElementById('ig-ranking').innerHTML = (tournamentRanking || players).map((p, i) => {
+      const prev = prevTournamentScores[p.name] || 0;
+      const delta = (p.total || p.score) - prev;
+      return '<div class="ig-row">' +
+        '<div class="ig-pos">' + (medals[i] || (i+1)+'°') + '</div>' +
+        charSVG(p.char?.id || 'nerd', 44, 48) +
+        '<div class="ig-name">' + p.name + '</div>' +
+        '<div class="ig-score">' +
+          '<div class="ig-game-pts">questo game: +' + (p.gameScore || p.score || 0) + ' pt</div>' +
+          '<div class="ig-total-pts">' + (p.total || p.score) + ' pt totali</div>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+
+    // Salva punteggi per il prossimo delta
+    (tournamentRanking || players).forEach(p => {
+      prevTournamentScores[p.name] = p.total || p.score;
+    });
+
+    showScreen('sc-intergame');
+  } else {
+    // Ultima partita → podio finale
+    socket.emit('end-game');
+  }
+});
+
 function endGame()   { socket.emit('end-game'); }
 function resetGame() { socket.emit('reset-game'); }
 

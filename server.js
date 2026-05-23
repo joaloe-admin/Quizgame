@@ -1390,7 +1390,7 @@ const CHARACTERS = [
 const rooms={}, socketRoom={};
 function createRoom() {
   const code=generateCode();
-  rooms[code]={ code, tvSocketId:null, players:{}, gameState:'lobby', gameMode:'quiz', isPaused:false, pausedTimeLeft:0, currentSubject:'mix', currentQ:0, roundQuestions:[], timerInterval:null, timeLeft:15, roundNumber:0, maxRounds:1, correctAnswerCount:0, usedQuestions:{}, stats:{},
+  rooms[code]={ code, tvSocketId:null, players:{}, gameState:'lobby', gameMode:'quiz', isPaused:false, pausedTimeLeft:0, currentSubject:'mix', currentQ:0, roundQuestions:[], timerInterval:null, timeLeft:15, roundNumber:0, maxRounds:1, correctAnswerCount:0, usedQuestions:{}, stats:{}, tournamentGames:1, currentGame:0, tournamentScores:{}, // punteggi cumulativi torneo
     talpaState:{ round:0, maxRounds:3, roles:{}, votes:{}, readyPlayers:new Set(), usedPairs:new Set(), eliminated:[], phase:'discuss', wordPair:[] } };
   return rooms[code];
 }
@@ -1419,8 +1419,9 @@ function revealAnswer(room) {
   setTimeout(()=>{
     room.currentQ++;
     const total=room.roundQuestions.length;
-    // Mini-podio ogni 5 domande
-    if (room.currentQ%5===0 && room.currentQ<total) {
+    // Mini-podio solo a metà partita (domanda 10 di 20)
+    const half = Math.floor(total / 2);
+    if (room.currentQ === half && room.currentQ < total) {
       const sorted=getPlayersList(room).sort((a,b)=>b.score-a.score);
       emitToRoom(room,'mini-podio',{ players:sorted, qDone:room.currentQ, total });
       setTimeout(()=>sendQuestion(room),3500);
@@ -1451,15 +1452,44 @@ function sendQuestion(room) {
 function endRound(room) {
   room.gameState='round-end';
   room.roundNumber++;
-  const sorted=getPlayersList(room).sort((a,b)=>b.score-a.score);
-  const stats=room.stats||{};
-  const statsList=Object.values(room.players).map(p=>({
-    name:p.name, char:p.char,
-    correct:stats[p.name]?.correct||0,
-    fastest:stats[p.name]?.fastest||0,
-    maxStreak:stats[p.name]?.maxStreak||0,
+  room.currentGame++;
+
+  // Accumula punteggi nel torneo
+  Object.values(room.players).forEach(p => {
+    if (!room.tournamentScores[p.name]) room.tournamentScores[p.name] = 0;
+    room.tournamentScores[p.name] += p.score;
+  });
+
+  const isLastGame = room.currentGame >= room.tournamentGames;
+  const sorted = getPlayersList(room).sort((a,b) => b.score - a.score);
+  const stats = room.stats || {};
+  const statsList = Object.values(room.players).map(p => ({
+    name: p.name, char: p.char,
+    correct:   stats[p.name]?.correct   || 0,
+    fastest:   stats[p.name]?.fastest   || 0,
+    maxStreak: stats[p.name]?.maxStreak || 0,
+    gameScore: p.score,
+    totalScore: room.tournamentScores[p.name] || 0,
   }));
-  emitToRoom(room,'round-end',{ players:sorted, roundNumber:room.roundNumber, maxRounds:1, isLastRound:true, stats:statsList });
+
+  // Classifica torneo con punteggi cumulativi
+  const tournamentRanking = Object.entries(room.tournamentScores)
+    .map(([name, total]) => {
+      const player = Object.values(room.players).find(p => p.name === name);
+      return { name, total, char: player?.char };
+    })
+    .sort((a,b) => b.total - a.total);
+
+  emitToRoom(room, 'round-end', {
+    players: sorted,
+    roundNumber: room.roundNumber,
+    maxRounds: room.tournamentGames,
+    isLastRound: isLastGame,
+    stats: statsList,
+    currentGame: room.currentGame,
+    tournamentGames: room.tournamentGames,
+    tournamentRanking,
+  });
 }
 
 function normalize(str) { return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,'').trim(); }
@@ -1737,7 +1767,7 @@ io.on('connection',(socket)=>{
   socket.on('reset-game',()=>{
     const room=getRoomBySocket(socket.id); if(!room) return;
     Object.keys(room.players).forEach(sid=>delete socketRoom[sid]);
-    room.players={}; room.gameState='lobby'; room.isPaused=false; room.currentQ=0; room.currentSubject='mix';
+    room.players={}; room.gameState='lobby'; room.isPaused=false; room.currentQ=0; room.currentSubject='mix'; room.currentGame=0; room.tournamentGames=1; room.tournamentScores={};
     room.roundNumber=0; room.maxRounds=1; room.correctAnswerCount=0; room.usedQuestions={}; room.stats={};
     clearInterval(room.timerInterval);
     const oldCode=room.code,newCode=generateCode();
@@ -1830,6 +1860,39 @@ io.on('connection',(socket)=>{
     endTalpaGame(room);
   });
 
+
+
+  // ── TORNEO: scelta numero game ─────────────────────────────────────────────
+  socket.on('set-tournament-games', ({ games }) => {
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    room.tournamentGames = games || 1;
+    room.currentGame = 0;
+    room.tournamentScores = {};
+    console.log('Torneo:', room.tournamentGames, 'game');
+  });
+
+  // ── TORNEO: avvia game successivo ──────────────────────────────────────────
+  socket.on('next-game', () => {
+    const room = getRoomBySocket(socket.id);
+    if (!room) return;
+    // Reset punteggio game (non torneo) e riparti
+    room.gameState = 'loading';
+    room.stats = {};
+    Object.values(room.players).forEach(p => { p.score = 0; p.streak = 0; p.answered = false; });
+    emitToRoom(room, 'game-starting', { emoji: '🎯', title: 'Game ' + (room.currentGame + 1) + ' di ' + room.tournamentGames });
+    generateMixedPool(room).then(questions => {
+      room.roundQuestions = questions;
+      room.currentQ = 0;
+      room.gameState = 'question-pending';
+      setTimeout(() => sendQuestion(room), 2500);
+    }).catch(() => {
+      const fallback = shuffle(QUESTIONS_ITALIA).slice(0,20).map(q=>tagQ(q,'italia'));
+      [6,13].forEach(idx=>{ if(fallback[idx]) fallback[idx].doublePoints=true; });
+      room.roundQuestions = fallback; room.currentQ = 0; room.gameState = 'question-pending';
+      setTimeout(() => sendQuestion(room), 2500);
+    });
+  });
 
   // ── PAUSA ─────────────────────────────────────────────────────────────────
   socket.on('pause-game', () => {
